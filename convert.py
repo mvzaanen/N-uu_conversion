@@ -33,6 +33,9 @@ def validate(data):
 
         if data["Green Orthography"][i] == None:
             logging.warning("Green Orthography is empty on row " + str(i + 2))
+        
+        if data["IPA"][i]: == None:
+            logging.warning("IPA is empty on row " + str(i+2))
 
 def convert(data):
     """Convert the data from .ods format into a format that can be
