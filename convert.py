@@ -12,6 +12,12 @@ import logging
 from pandas_ods_reader import read_ods
 import re
 
+# fields contains the fields from the spreadsheet the conversion
+# script is using to create the output.
+# "Orthography 1" contains the orthography of an entry, "IPA" contains
+# the IPA representation, "English" contains the English translation,
+# and "Afrikaans" contains the Afrikaans translation.
+fields = ("Orthography 1", "IPA", "English", "Afrikaans")
 
 def read_input(filename):
     """Read input .ods file found at filename. Return the input as is.
@@ -20,19 +26,29 @@ def read_input(filename):
     df = read_ods(filename , 1)
     return df
 
-def validate(data):
-    """Validate the data coming from the spreadsheet.  The format is
-    as follows: @@@.  Different validations are performed and
-    information is written on logging.WARNING.  The data itself is not
-    changed, only validated.
+def is_empty(data, i):
+    """is_empty checks whether the important fields (defined by
+    fields) are empty. If so, it returns True, False otherwise.  It
+    provides warnings on logging.warning for all fields.
     """
-    logging.debug("Validating data")
-    for i in range(0, len(data)):
-        if data["Orthography 1"][i] == None:
-            logging.warning("Orthography 1 is empty on row " + str(i + 2))
+    status = False
+    for field in fields:
+        if data[field][i] == None:
+        logging.warning(field + " is empty on row " + str(i + 2))
+        status = True
+    return status
 
-        if data["IPA"][i] == None:
-            logging.warning("IPA is empty on row " + str(i+2))
+def internalize(data):
+    """Validate the data coming from the spreadsheet and store in an
+    internal format.
+    Different validations are performed and information
+    is written on logging.WARNING.  The data itself is stored in a
+    dictionary.
+    """
+    logging.debug("Internalize data")
+    for i in range(0, len(data)):
+        if is_empty(data, i):
+            None
 
 def convert(data):
     """Convert the data from .ods format into a format that can be
@@ -85,8 +101,8 @@ def main():
 
     # Handle the data
     data = read_input(args.input)
-    validate(data)
-    clean_data = convert(data)
+    internal = internalize(data)
+    clean_data = convert(internal)
     write_output(args.output, clean_data)
 
 
