@@ -31,10 +31,7 @@ def validate(data):
         if data["Orthography 1"][i] == None:
             logging.warning("Orthography 1 is empty on row " + str(i + 2))
 
-        if data["Green Orthography"][i] == None:
-            logging.warning("Green Orthography is empty on row " + str(i + 2))
-        
-        if data["IPA"][i]: == None:
+        if data["IPA"][i] == None:
             logging.warning("IPA is empty on row " + str(i+2))
 
 def convert(data):
