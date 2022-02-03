@@ -77,16 +77,16 @@ def main():
 
     logging.basicConfig(level = args.loglevel)
 
+    # Perform checks on arguments
     if args.input == None:
         parser.error("An input filename is required.")
-    data = read_input(args.input)
-
-    validate(data)
-
-    clean_data = convert(data)
-
     if args.output == None:
         parser.error("An output filename is required.")
+
+    # Handle the data
+    data = read_input(args.input)
+    validate(data)
+    clean_data = convert(data)
     write_output(args.output, clean_data)
 
 
