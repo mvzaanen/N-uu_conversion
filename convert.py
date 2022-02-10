@@ -4,65 +4,274 @@
 This program takes a spreadsheet in .ods format containing linguistic
 information on the N|uu language (collected through field work).  It
 validates the input and converts it into an output that can be used as
-the input for the dictionary portal and dictionary app.
+the input for the dictionary portal and dictionary app.  It can als generate
+output (in LaTeX format) for the physical dictionary.
 """
 
 import argparse
+from enum import Enum
 import logging
 from pandas_ods_reader import read_ods
 import re
 
-# fields contains the fields from the spreadsheet the conversion
-# script is using to create the output.
-# "Orthography 1" contains the orthography of an entry, "IPA" contains
-# the IPA representation, "English" contains the English translation,
-# and "Afrikaans" contains the Afrikaans translation.
-fields = ("Orthography 1", "IPA", "English", "Afrikaans")
+
+class Entry:
+    """The Entry class contains information needed to create dictionary entries.  These can be printed in the form useful for the dictionary portal and dictionary app as well as in LaTeX form.
+    """
+
+    def __init__(self, n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west,
+            english, afrikaans, khoekhoegowab, line_nr):
+        """An Entry needs to be introduced using the fields that are required
+        for output.  Note that a least one of n_uu, n_uu_east, n_uu_west needs
+        to be filled (otherwise an exception is raised).  If none of ipa,
+        ipa_east, ipa_west is filled, a warning is written on the logging
+        channel, similarly if english, afrikaans, or khoekhoegowab (or any
+        combination) are not filled.  Line_nr is the line the entry is found in.
+        """
+        # Check whether the n_uu information is present.
+        if n_uu == None and n_uu_east == None and n_uu_west == None:
+            raise ValueError("Missing N|uu information")
+        self.n_uu = n_uu
+        self.n_uu_east = n_uu_east
+        self.n_uu_west = n_uu_west
+        # Create key which is the combination of n_uu, n_uu_east, n_uu_west.
+        key_list = []
+        if n_uu != None:
+            key_list.append(n_uu)
+        if n_uu_east != None:
+            key_list.append(n_uu_east + " (east)")
+        if n_uu_west != None:
+            key_list.append(n_uu_west + " (west)")
+        self.key = ", ".join(key_list)
+        # Check whether IPA is present.
+        if ipa == None and ipa_east == None and ipa_west == None:
+            logging.warning("Missing IPA on line " + str(line_nr) + " in " + self.key)
+        self.ipa = ipa
+        self.ipa_east = ipa_east
+        self.ipa_west = ipa_west
+        # Check whether English information is present.
+        if english == None:
+            logging.warning("Missing English on line " + str(line_nr) + " in " + self.key)
+        self.english = english
+        # Check whether Afrikaans information is present.
+        if afrikaans == None:
+            logging.warning("Missing Afrikaans on line " + str(line_nr) + " in " + self.key)
+        self.afrikaans = afrikaans
+        # Check whether Khoekhoegowab information is present.
+        if khoekhoegowab == None:
+            logging.warning("Missing Khoekhoegowab on line " + str(line_nr) + " in " + self.key)
+        self.khoekhoegowab = khoekhoegowab
+        self.line_nr = line_nr
+
+    def __str__(self):
+        """__str__ provides printable output.
+        """
+        return "Entry(n_uu=" + self.n_uu + ", n_uu_east=" + self.n_uu_east + ", n_uu_west=" + self.n_uu_west + ", ipa=" + self.ipa + ", ipa_east=" + self.ipa_east + ", ipa_west=" + self.ipa_west + ", english=" + self.english + ", afrikaans=" + self.afrikaans + ", Khoekhoegowab=" + self.khoekhoegowab + ", line_nr=" + self.line_nr + ")"
+
+    def write_portal(self, fp):
+        fp.write("**\n")
+        fp.write("<Project>N|uu dictionary\n")
+        if self.n_uu:
+            fp.write("<N|uu>" + self.n_uu + "\n")
+        if self.n_uu_east:
+            fp.write("<N|uu East>" + self.n_uu_east + "\n")
+        if self.n_uu_west:
+            fp.write("<N|uu West>" + self.n_uu_west + "\n")
+        if self.ipa:
+            fp.write("<IPA>" + self.ipa + "\n")
+        if self.ipa_east:
+            fp.write("<IPA East>" + self.ipa_east + "\n")
+        if self.ipa_west:
+            fp.write("<IPA West>" + self.ipa_west + "\n")
+        if self.english:
+            fp.write("<English>" + self.english + "\n")
+        if self.afrikaans:
+            fp.write("<Afrikaans>" + str(self.afrikaans) + "\n")
+        if self.khoekhoegowab:
+            fp.write("<Khoekhoegowab>" + self.khoekhoegowab + "\n")
+        fp.write("**\n")
+
+    def write_latex(self, fp):
+        if self.n_uu:
+            fp.write("\\nuu{" + self.n_uu + "}\n")
+        if self.n_uu_east:
+            fp.write("\\nuu_east{" + self.n_uu_east + "}\n")
+        if self.n_uu_west:
+            fp.write("\\nuu_west{" + self.n_uu_west + "}\n")
+        if self.ipa:
+            fp.write("\\ipa{" + self.ipa + "}\n")
+        if self.ipa_east:
+            fp.write("\\ipa_east{" + self.ipa_east + "}\n")
+        if self.ipa_west:
+            fp.write("\\ipa_west{" + self.ipa_west + "}\n")
+        if self.english:
+            fp.write("\\english{" + self.english + "}\n")
+        if self.afrikaans:
+            fp.write("\\afrikaans{" + str(self.afrikaans) + "}\n")
+        if self.khoekhoegowab:
+            fp.write("\\khoekhoegowab{" + self.khoekhoegowab + "}\n")
+        fp.write("\n\n")
+
+
+class Dictionary:
+    """The Dictionary class stores all information for the dictionary.  It
+    checks whether all the required information is present.
+    """
+
+    # Entry_type indicates where particular information is stored. For
+    # instnace, this could indicate n_uu (=GLOBAL), n_uu_east (=EAST), or
+    # n_uu_west (=WEST).
+    Entry_type = Enum("Entry_type", "GLOBAL EAST WEST")
+
+    # Entries contains the list of dictionary entries (instances of the
+    # Entry class).  The position in this list is used in the mappings
+    # (below).
+    entries = []
+    # Lemma_type is a mapping from a lemma (n_uu word) to the field the
+    # lemma is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
+    lemma_type = {}
+    # IPA_type is a mapping from an ipa representation to the field the
+    # IPA is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
+    ipa_type = {}
+    # The mappings map a key to the entry (index) in the entries variable.
+    n_uu_map = {}
+    n_uu_east_map = {}
+    n_uu_west_map = {}
+    ipa_map = {}
+    ipa_east_map = {}
+    ipa_west_map = {}
+    english_map = {}
+    afrikaans_map = {}
+    khoekhoegowab_map = {}
+
+
+    def check_add_map(self, element, mapping, index, name, line_nr):
+        """Check_add_map checks whether the element is empty and if not, it adds
+        it to the mapping, storing the index.  It uses the name for warnings in
+        case elements are already present. line_nr is the number of the current
+        line.
+        """
+        if element != None:
+            if element in mapping:
+                logging.warning("Duplicate value on line " + str(line_nr) + " " + name + ": " + element + " also found on line " + str(self.entries[mapping[element]].line_nr))
+            mapping[element] = index
+
+    def insert(self, n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr):
+        """Create and add the entry to the entries list. Len(self.entries)
+        provides the index of the new entry.
+        """
+        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr))
+
+        new_index = len(self.entries)
+
+        self.check_add_map(n_uu, self.n_uu_map, new_index, "n_uu", line_nr)
+        if n_uu != None:
+            self.lemma_type[n_uu] = self.Entry_type.GLOBAL
+
+        self.check_add_map(n_uu_east, self.n_uu_east_map, new_index,
+                "n_uu_east", line_nr)
+        if n_uu_east != None:
+            self.lemma_type[n_uu_east] = self.Entry_type.EAST
+
+        self.check_add_map(n_uu_west, self.n_uu_west_map, new_index,
+                "n_uu_west", line_nr)
+        if n_uu_west != None:
+            self.lemma_type[n_uu_west] = self.Entry_type.WEST
+
+        self.check_add_map(ipa, self.ipa_map, new_index, "ipa", line_nr)
+        if ipa != None:
+            self.ipa_type[ipa] = self.Entry_type.GLOBAL
+
+        self.check_add_map(ipa_east, self.ipa_east_map, new_index, "ipa_east",
+                line_nr)
+        if ipa_east != None:
+            self.ipa_type[ipa_east] = self.Entry_type.EAST
+
+        self.check_add_map(ipa_west, self.ipa_west_map, new_index, "ipa_west",
+                line_nr)
+        if ipa_west != None:
+            self.ipa_type[ipa_west] = self.Entry_type.WEST
+
+        self.check_add_map(english, self.english_map, new_index, "english",
+                line_nr)
+        self.check_add_map(afrikaans, self.afrikaans_map, new_index,
+                "afrikaans", line_nr)
+        self.check_add_map(khoekhoegowab, self.khoekhoegowab_map, new_index,
+                "khoekhoegowab", line_nr)
+
+
+    def insert_line(self, line, line_nr):
+        self.insert(line["Orthography 1"], None, None, line["IPA"], None, None, line["English"], line["Afrikaans"], line["Khoekhoegowab"], line_nr)
+
+    def __str__(self):
+        """__str__ provides printable output.
+        """
+        result = "Dictionary(\n"
+        for i in self.entries:
+            result += i
+        result += ")"
+        return result
+
+    def write_portal(self, filename):
+        output = open(filename, "w")
+        for i in self.entries:
+            i.write_portal(output)
+        output.close()
+
+    def write_latex_header(self, fp):
+        fp.write("\\documentclass{article}\n")
+        fp.write("\\newcommand{\\nuu}[1]{#1}\n")
+        fp.write("\\newcommand{\\nuu_east}[1]{#1}\n")
+        fp.write("\\newcommand{\\nuu_west}[1]{#1}\n")
+        fp.write("\\newcommand{\\ipa}[1]{#1}\n")
+        fp.write("\\newcommand{\\ipa_east}[1]{#1}\n")
+        fp.write("\\newcommand{\\ipa_west}[1]{#1}\n")
+        fp.write("\\newcommand{\\english}[1]{#1}\n")
+        fp.write("\\newcommand{\\afrikaans}[1]{#1}\n")
+        fp.write("\\newcommand{\\khoekhoegowab}[1]{#1}\n")
+        fp.write("\\begin{document}\n")
+
+    def write_latex_footer(self, fp):
+        fp.write("\\end{document}\n")
+
+    def write_latex(self, filename):
+        output = open(filename, "w")
+        self.write_latex_header(output)
+        for i in self.entries:
+            i.write_latex(output)
+        self.write_latex_footer(output)
+        output.close()
+        pass
+
+
 
 def read_input(filename):
-    """Read input .ods file found at filename. Return the input as is.
+    """Read input .ods file found at filename. Internalize in a Dictionary
+    object.
     """
     logging.debug("Reading in file " + filename)
-    df = read_ods(filename , 1)
-    return df
-
-def is_empty(data, i):
-    """is_empty checks whether the important fields (defined by
-    fields) are empty. If so, it returns True, False otherwise.  It
-    provides warnings on logging.warning for all fields.
-    """
-    status = False
-    for field in fields:
-        if data[field][i] == None:
-        logging.warning(field + " is empty on row " + str(i + 2))
-        status = True
-    return status
-
-def internalize(data):
-    """Validate the data coming from the spreadsheet and store in an
-    internal format.
-    Different validations are performed and information
-    is written on logging.WARNING.  The data itself is stored in a
-    dictionary.
-    """
-    logging.debug("Internalize data")
-    for i in range(0, len(data)):
-        if is_empty(data, i):
-            None
-
-def convert(data):
-    """Convert the data from .ods format into a format that can be
-    used as input to the dictionary portal or dictionary app.
-    """
-    logging.debug("Convert data")
+    global line_nr # GLOBAL
+    data = Dictionary() 
+    spreadsheet = read_ods(filename , 1)
+    for index, row in spreadsheet.iterrows():
+        try:
+            data.insert_line(row, index + 2) # 2 is header and offset
+        except ValueError:
+            logging.error("Missing N|uu information on line " + str(index + 2))
     return data
 
-def write_output(filename, data):
+
+def write_output(base, data):
     """The data is written to the output file (filename) in the format
     that can be used as input to the dictionary portal and dictionary
     app.
     """
-    logging.debug("Writing output to " + filename)
+    logging.debug("Writing app output to " + base + ".txt")
+    data.write_portal(base + ".txt")
+    logging.debug("Writing app output to " + base + ".tex")
+    data.write_latex(base + ".tex")
+
+
 
 
 def main():
@@ -70,25 +279,26 @@ def main():
     is read from the input filename.  Validation of the data is
     performed.  Next, the data is converted into the format usable for
     the dictionary portal and dictionary app.  Finally, the data is
-    written to an output file.
+    written to output files.  The argument provides the base of the output files
+    and the system generates a .txt containing the dictionary portal/app format.
     """
 
-    parser = argparse.ArgumentParser(description="This program converts the N|uu spreadsheet into a format that can be used as input for the dictionary portal.  It also checks the input on several aspects.")
+    parser = argparse.ArgumentParser(description="This program converts the N|uu spreadsheet into a format that can be used as input for the dictionary portal.  It also checks the input on several aspects.  It generates output files (.txt) based on the output argument.")
     parser.add_argument("-i", "--input",
-        help = "name of ods spreadsheet file",
-        action = "store",
-        metavar = "FILE")
+            help = "name of ods spreadsheet file",
+            action = "store",
+            metavar = "FILE")
     parser.add_argument("-o", "--output",
-        help = "name of output file",
-        action = "store",
-        metavar = "FILE")
+            help = "name of output base filename",
+            action = "store",
+            metavar = "FILE BASE")
     parser.add_argument("-d", "--debug",
-        help = "provide debugging information",
-        action = "store_const",
-        dest = "loglevel",
-        const = logging.DEBUG,
-        default = logging.WARNING,
-)
+            help = "provide debugging information",
+            action = "store_const",
+            dest = "loglevel",
+            const = logging.DEBUG,
+            default = logging.WARNING,
+            )
     args = parser.parse_args()
 
     logging.basicConfig(level = args.loglevel)
@@ -97,13 +307,11 @@ def main():
     if args.input == None:
         parser.error("An input filename is required.")
     if args.output == None:
-        parser.error("An output filename is required.")
+        parser.error("An output base filename is required.")
 
     # Handle the data
     data = read_input(args.input)
-    internal = internalize(data)
-    clean_data = convert(internal)
-    write_output(args.output, clean_data)
+    write_output(args.output, data)
 
 
 if __name__ == '__main__':
