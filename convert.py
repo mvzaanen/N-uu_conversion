@@ -86,7 +86,7 @@ class Entry:
         if self.english:
             fp.write("<English>" + self.english + "\n")
         if self.afrikaans:
-            fp.write("<Afrikaans>" + str(self.afrikaans) + "\n")
+            fp.write("<Afrikaans>" + self.afrikaans + "\n")
         if self.khoekhoegowab:
             fp.write("<Khoekhoegowab>" + self.khoekhoegowab + "\n")
         fp.write("**\n")
@@ -107,7 +107,7 @@ class Entry:
         if self.english:
             fp.write("\\english{" + self.english + "}\n")
         if self.afrikaans:
-            fp.write("\\afrikaans{" + str(self.afrikaans) + "}\n")
+            fp.write("\\afrikaans{" + self.afrikaans + "}\n")
         if self.khoekhoegowab:
             fp.write("\\khoekhoegowab{" + self.khoekhoegowab + "}\n")
         fp.write("\n\n")
@@ -160,6 +160,28 @@ class Dictionary:
         """Create and add the entry to the entries list. Len(self.entries)
         provides the index of the new entry.
         """
+        # Convert to string (if needed) and remove any whitespace at beginning
+        # or end.
+        if n_uu:
+            n_uu = str(n_uu).strip()
+        if n_uu_east:
+            n_uu_east = str(n_uu_east).strip()
+        if n_uu_west:
+            n_uu_west = str(n_uu_west).strip()
+        if ipa:
+            ipa = str(ipa).strip()
+        if ipa_east:
+            ipa_east = str(ipa_east).strip()
+        if ipa_west:
+            ipa_west = str(ipa_west).strip()
+        if english:
+            english = str(english).strip()
+        if afrikaans:
+            afrikaans = str(afrikaans).strip()
+        if khoekhoegowab:
+            khoekhoegowab = str(khoekhoegowab).strip()
+
+        # Add information to entries
         self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr))
 
         new_index = len(self.entries)
@@ -200,8 +222,36 @@ class Dictionary:
                 "khoekhoegowab", line_nr)
 
 
+    def parse(self, text):
+        """parse analyses the text for (Western) and (Eastern) variants and
+        splits the text into potentially three values.  These values are
+        returned as a tuple in the following order:
+        there is no eastern or western variant, western variant, eastern
+        variant.
+        """
+        if not text:
+            return text, None, None
+        east = None
+        west = None
+        general = None
+        m = re.search(r',?([^\)]*) *\(Western\)', text)
+        if m:
+            west = m[1]
+        m = re.search(r',?([^\)]*) *\(Eastern\)', text)
+        if m:
+            east = m[1]
+        if not east and not west:
+            general = text
+        return general, east, west
+
     def insert_line(self, line, line_nr):
-        self.insert(line["Orthography 1"], None, None, line["IPA"], None, None, line["English"], line["Afrikaans"], line["Khoekhoegowab"], line_nr)
+        """Insert_line adds a line from the spreadsheet into the dictionary
+        (self). It parses the Orthography 1 and IPA fields as there may be
+        eastern or western variants in there.
+        """
+        n_uu, n_uu_east, n_uu_west = self.parse(line["Orthography 1"])
+        ipa, ipa_east, ipa_west = self.parse(line["IPA"])
+        self.insert(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, line["English"], line["Afrikaans"], line["Khoekhoegowab"], line_nr)
 
     def __str__(self):
         """__str__ provides printable output.
