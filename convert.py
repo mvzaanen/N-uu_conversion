@@ -222,7 +222,7 @@ class Dictionary:
                 "khoekhoegowab", line_nr)
 
 
-    def parse(self, text):
+    def parse(self, text, line_nr):
         """parse analyses the text for (Western) and (Eastern) variants and
         splits the text into potentially three values.  These values are
         returned as a tuple in the following order:
@@ -234,13 +234,30 @@ class Dictionary:
         east = None
         west = None
         general = None
-        m = re.search(r',?([^\)]*) *\(Western\)', text)
-        if m:
-            west = m[1]
-        m = re.search(r',?([^\)]*) *\(Eastern\)', text)
-        if m:
-            east = m[1]
-        if not east and not west:
+        # This regular expression searches for an optional comma (which we are
+        # not interested in as it can only start at the beginning of the string
+        # or directly after a pair of matching brackets).  We then find
+        # non-bracket characters, followed by non-bracket characters within a
+        # pair of brackets.  In case of a match the first element of the tuple
+        # is the word and the second element of the tuple is the label within
+        # the brackets.  Note that this ignores everything following the last
+        # pair of brackets in case of a match.
+        elements = re.findall(r',?([^\(\)]*)\(([^\(\)]*)\)', text)
+        # TODO: handle text after last bracket
+        if elements:
+            for i in elements:
+                if i[1] == "Eastern":
+                    if east:
+                        logging.error("Duplicate Eastern info on line " + str(line_nr))
+                    east = i[0].strip()
+                elif i[1] == "Western":
+                    if west:
+                        logging.error("Duplicate Western info on line " + str(line_nr))
+                    west = i[0].strip()
+                else:
+                    logging.warning("Found unknown bracket info: " + str(i[1]) + " on line " + str(line_nr))
+                    general = text
+        else:
             general = text
         return general, east, west
 
@@ -249,8 +266,8 @@ class Dictionary:
         (self). It parses the Orthography 1 and IPA fields as there may be
         eastern or western variants in there.
         """
-        n_uu, n_uu_east, n_uu_west = self.parse(line["Orthography 1"])
-        ipa, ipa_east, ipa_west = self.parse(line["IPA"])
+        n_uu, n_uu_east, n_uu_west = self.parse(line["Orthography 1"], line_nr)
+        ipa, ipa_east, ipa_west = self.parse(line["IPA"], line_nr)
         self.insert(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, line["English"], line["Afrikaans"], line["Khoekhoegowab"], line_nr)
 
     def __str__(self):
