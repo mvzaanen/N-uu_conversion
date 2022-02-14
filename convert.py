@@ -250,7 +250,6 @@ def read_input(filename):
     object.
     """
     logging.debug("Reading in file " + filename)
-    global line_nr # GLOBAL
     data = Dictionary() 
     spreadsheet = read_ods(filename , 1)
     for index, row in spreadsheet.iterrows():
@@ -292,6 +291,10 @@ def main():
             help = "name of output base filename",
             action = "store",
             metavar = "FILE BASE")
+    parser.add_argument("-l", "--log",
+            help = "name of logging filename",
+            action = "store",
+            metavar = "FILE")
     parser.add_argument("-d", "--debug",
             help = "provide debugging information",
             action = "store_const",
@@ -301,7 +304,10 @@ def main():
             )
     args = parser.parse_args()
 
-    logging.basicConfig(level = args.loglevel)
+    if args.log:
+        logging.basicConfig(filename = args.log, format = '%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt = '%H:%M:%S', level = args.loglevel)
+    else:
+        logging.basicConfig(level = args.loglevel)
 
     # Perform checks on arguments
     if args.input == None:
