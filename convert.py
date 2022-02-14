@@ -203,14 +203,14 @@ class Dictionary:
         self.check_add_map(khoekhoegowab, self.khoekhoegowab_map, new_index, "khoekhoegowab", line_nr)
 
 
-    def parse(self, text, line_nr):
+    def parse(self, text, mode, line_nr):
         """parse analyses the text for (Western) and (Eastern) variants and
         splits the text into potentially three values.  These values are
         returned as a tuple in the following order:
         there is no eastern or western variant, western variant, eastern
-        variant.
+        variant. Mode indicates the type of cell that was investigated
+        (as a string).
         """
-        return text, None, None  # FOR NOW
         if not text:
             return text, None, None
         east = None
@@ -228,17 +228,22 @@ class Dictionary:
         # TODO: handle text after last bracket
         if elements:
             for i in elements:
-                if i[1] == "Eastern":
+                if i[1].casefold() == "Eastern".casefold(): # handle case
                     if east:
-                        logging.error("Duplicate Eastern info on line " + str(line_nr))
+                        logging.error("Duplicate Eastern info in " + mode + " on line " + str(line_nr))
                     east = i[0].strip()
-                elif i[1] == "Western":
+                elif i[1].casefold() == "Western".casefold(): # handle case
                     if west:
-                        logging.error("Duplicate Western info on line " + str(line_nr))
+                        logging.error("Duplicate Western info in " + mode + " on line " + str(line_nr))
                     west = i[0].strip()
                 else:
-                    logging.warning("Found unknown bracket info: " + str(i[1]) + " on line " + str(line_nr))
+                    logging.warning("Found unknown bracket info: " + str(i[1]) + " in " + mode + " on line " + str(line_nr))
                     general = text
+            # Find the rest of the text after the last closing bracket
+            rest = re.search(r'\)([^\)]*)$', text)
+            if rest and rest[1] != "":
+                logging.warning("Found additional text in " + mode + " after brackets: " + str(rest[1]) + " on line " + str(line_nr))
+
         else:
             general = text
         return general, east, west
@@ -267,8 +272,8 @@ class Dictionary:
 
         # Parse the N|uu and IPA entries as there may be eastern and
         # western values in there.
-        n_uu, n_uu_east, n_uu_west = self.parse(orthography, line_nr)
-        ipa, ipa_east, ipa_west = self.parse(ipa, line_nr)
+        n_uu, n_uu_east, n_uu_west = self.parse(orthography, "Orthography 1", line_nr)
+        ipa, ipa_east, ipa_west = self.parse(ipa, "IPA", line_nr)
         self.insert(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr)
 
     def __str__(self):
@@ -384,7 +389,7 @@ def main():
     args = parser.parse_args()
 
     if args.log:
-        logging.basicConfig(filename = args.log, format = '%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt = '%H:%M:%S', level = args.loglevel)
+        logging.basicConfig(filename = args.log, filemode='w', format = '%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt = '%H:%M:%S', level = args.loglevel)
     else:
         logging.basicConfig(level = args.loglevel)
 
