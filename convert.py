@@ -9,6 +9,7 @@ output (in LaTeX format) for the physical dictionary.
 """
 
 import argparse
+import copy
 from enum import Enum
 import logging
 from pandas_ods_reader import read_ods
@@ -28,13 +29,16 @@ class Entry:
         channel, similarly if english, afrikaans, or khoekhoegowab (or any
         combination) are not filled.  Line_nr is the line the entry is found in.
         """
+        self.line_nr = str(line_nr)
         # Check whether the n_uu information is present.
-        if n_uu == None and n_uu_east == None and n_uu_west == None:
+        if not n_uu and not n_uu_east and not n_uu_west:
             raise ValueError("Missing N|uu information")
         self.n_uu = n_uu
         self.n_uu_east = n_uu_east
         self.n_uu_west = n_uu_west
-        # Create key which is the combination of n_uu, n_uu_east, n_uu_west.
+        # Create key which is the combination of n_uu, n_uu_east,
+        # n_uu_west.  The key is only used for messages (error,
+        # warning).
         key_list = []
         if n_uu != None:
             key_list.append(n_uu)
@@ -43,30 +47,34 @@ class Entry:
         if n_uu_west != None:
             key_list.append(n_uu_west + " (west)")
         self.key = ", ".join(key_list)
+
         # Check whether IPA is present.
-        if ipa == None and ipa_east == None and ipa_west == None:
-            logging.warning("Missing IPA on line " + str(line_nr) + " in " + self.key)
+        if not ipa and not ipa_east and not ipa_west:
+            logging.warning("Missing IPA on line " + self.line_nr + " in " + self.key)
         self.ipa = ipa
         self.ipa_east = ipa_east
         self.ipa_west = ipa_west
+
         # Check whether English information is present.
-        if english == None:
-            logging.warning("Missing English on line " + str(line_nr) + " in " + self.key)
+        if not english:
+            logging.warning("Missing English on line " + self.line_nr + " in " + self.key)
         self.english = english
+
         # Check whether Afrikaans information is present.
-        if afrikaans == None:
-            logging.warning("Missing Afrikaans on line " + str(line_nr) + " in " + self.key)
+        if not afrikaans:
+            logging.warning("Missing Afrikaans on line " + self.line_nr + " in " + self.key)
         self.afrikaans = afrikaans
+
         # Check whether Khoekhoegowab information is present.
-        if khoekhoegowab == None:
-            logging.warning("Missing Khoekhoegowab on line " + str(line_nr) + " in " + self.key)
+        if not khoekhoegowab:
+            logging.warning("Missing Khoekhoegowab on line " + self.line_nr + " in " + self.key)
         self.khoekhoegowab = khoekhoegowab
-        self.line_nr = line_nr
+
 
     def __str__(self):
         """__str__ provides printable output.
         """
-        return "Entry(n_uu=" + self.n_uu + ", n_uu_east=" + self.n_uu_east + ", n_uu_west=" + self.n_uu_west + ", ipa=" + self.ipa + ", ipa_east=" + self.ipa_east + ", ipa_west=" + self.ipa_west + ", english=" + self.english + ", afrikaans=" + self.afrikaans + ", Khoekhoegowab=" + self.khoekhoegowab + ", line_nr=" + self.line_nr + ")"
+        return "Entry(n_uu=" + str(self.n_uu) + ", n_uu_east=" + str(self.n_uu_east) + ", n_uu_west=" + str(self.n_uu_west) + ", ipa=" + str(self.ipa) + ", ipa_east=" + str(self.ipa_east) + ", ipa_west=" + str(self.ipa_west) + ", english=" + str(self.english) + ", afrikaans=" + str(self.afrikaans) + ", Khoekhoegowab=" + str(self.khoekhoegowab) + ", line_nr=" + str(self.line_nr) + ")"
 
     def write_portal(self, fp):
         fp.write("**\n")
@@ -154,49 +162,27 @@ class Dictionary:
         if element != None:
             if element in mapping:
                 logging.warning("Duplicate value on line " + str(line_nr) + " " + name + ": " + element + " also found on line " + str(self.entries[mapping[element]].line_nr))
-            mapping[element] = index
+            else: # Keep the old value
+                mapping[element] = index
 
     def insert(self, n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr):
         """Create and add the entry to the entries list. Len(self.entries)
         provides the index of the new entry.
         """
-        # Convert to string (if needed) and remove any whitespace at beginning
-        # or end.
-        if n_uu:
-            n_uu = str(n_uu).strip()
-        if n_uu_east:
-            n_uu_east = str(n_uu_east).strip()
-        if n_uu_west:
-            n_uu_west = str(n_uu_west).strip()
-        if ipa:
-            ipa = str(ipa).strip()
-        if ipa_east:
-            ipa_east = str(ipa_east).strip()
-        if ipa_west:
-            ipa_west = str(ipa_west).strip()
-        if english:
-            english = str(english).strip()
-        if afrikaans:
-            afrikaans = str(afrikaans).strip()
-        if khoekhoegowab:
-            khoekhoegowab = str(khoekhoegowab).strip()
-
         # Add information to entries
         self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr))
 
-        new_index = len(self.entries)
+        new_index = len(self.entries) - 1 # Get index which is length - 1
 
         self.check_add_map(n_uu, self.n_uu_map, new_index, "n_uu", line_nr)
         if n_uu != None:
             self.lemma_type[n_uu] = self.Entry_type.GLOBAL
 
-        self.check_add_map(n_uu_east, self.n_uu_east_map, new_index,
-                "n_uu_east", line_nr)
+        self.check_add_map(n_uu_east, self.n_uu_east_map, new_index, "n_uu_east", line_nr)
         if n_uu_east != None:
             self.lemma_type[n_uu_east] = self.Entry_type.EAST
 
-        self.check_add_map(n_uu_west, self.n_uu_west_map, new_index,
-                "n_uu_west", line_nr)
+        self.check_add_map(n_uu_west, self.n_uu_west_map, new_index, "n_uu_west", line_nr)
         if n_uu_west != None:
             self.lemma_type[n_uu_west] = self.Entry_type.WEST
 
@@ -204,22 +190,17 @@ class Dictionary:
         if ipa != None:
             self.ipa_type[ipa] = self.Entry_type.GLOBAL
 
-        self.check_add_map(ipa_east, self.ipa_east_map, new_index, "ipa_east",
-                line_nr)
+        self.check_add_map(ipa_east, self.ipa_east_map, new_index, "ipa_east", line_nr)
         if ipa_east != None:
             self.ipa_type[ipa_east] = self.Entry_type.EAST
 
-        self.check_add_map(ipa_west, self.ipa_west_map, new_index, "ipa_west",
-                line_nr)
+        self.check_add_map(ipa_west, self.ipa_west_map, new_index, "ipa_west", line_nr)
         if ipa_west != None:
             self.ipa_type[ipa_west] = self.Entry_type.WEST
 
-        self.check_add_map(english, self.english_map, new_index, "english",
-                line_nr)
-        self.check_add_map(afrikaans, self.afrikaans_map, new_index,
-                "afrikaans", line_nr)
-        self.check_add_map(khoekhoegowab, self.khoekhoegowab_map, new_index,
-                "khoekhoegowab", line_nr)
+        self.check_add_map(english, self.english_map, new_index, "english", line_nr)
+        self.check_add_map(afrikaans, self.afrikaans_map, new_index, "afrikaans", line_nr)
+        self.check_add_map(khoekhoegowab, self.khoekhoegowab_map, new_index, "khoekhoegowab", line_nr)
 
 
     def parse(self, text, line_nr):
@@ -229,6 +210,7 @@ class Dictionary:
         there is no eastern or western variant, western variant, eastern
         variant.
         """
+        return text, None, None  # FOR NOW
         if not text:
             return text, None, None
         east = None
@@ -261,21 +243,51 @@ class Dictionary:
             general = text
         return general, east, west
 
+    def convert_to_string(self, cell):
+        """convert the value of a cell to stripped text, but leave it
+        None if it is.
+        """
+        if cell:
+            return str(cell).strip()
+        else:
+            return None
+
     def insert_line(self, line, line_nr):
         """Insert_line adds a line from the spreadsheet into the dictionary
         (self). It parses the Orthography 1 and IPA fields as there may be
         eastern or western variants in there.
         """
-        n_uu, n_uu_east, n_uu_west = self.parse(line["Orthography 1"], line_nr)
-        ipa, ipa_east, ipa_west = self.parse(line["IPA"], line_nr)
-        self.insert(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, line["English"], line["Afrikaans"], line["Khoekhoegowab"], line_nr)
+        # Convert to string (if needed) and remove any whitespace at beginning
+        # or end.
+        orthography = self.convert_to_string(line["Orthography 1"])
+        ipa = self.convert_to_string(line["IPA"])
+        english = self.convert_to_string(line["English"])
+        afrikaans = self.convert_to_string(line["Afrikaans"])
+        khoekhoegowab = self.convert_to_string(line["Khoekhoegowab"])
+
+        # Parse the N|uu and IPA entries as there may be eastern and
+        # western values in there.
+        n_uu, n_uu_east, n_uu_west = self.parse(orthography, line_nr)
+        ipa, ipa_east, ipa_west = self.parse(ipa, line_nr)
+        self.insert(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr)
 
     def __str__(self):
         """__str__ provides printable output.
         """
-        result = "Dictionary(\n"
+        result = "Dictionary(Entries:\n"
         for i in self.entries:
-            result += i
+            result += "  " + str(i) + "\n"
+        result += "lemma_type: " + str(self.lemma_type) + "\n"
+        result += "ipa_type: " + str(self.ipa_type) + "\n"
+        result += "n_uu_map: " + str(self.n_uu_map) + "\n"
+        result += "n_uu_east_map: " + str(self.n_uu_east_map) + "\n"
+        result += "n_uu_west_map: " + str(self.n_uu_west_map) + "\n"
+        result += "ipa_map: " + str(self.ipa_map) + "\n"
+        result += "ipa_east_map: " + str(self.ipa_east_map) + "\n"
+        result += "ipa_west_map: " + str(self.ipa_west_map) + "\n"
+        result += "english_map: " + str(self.english_map) + "\n"
+        result += "afrikaans_map: " + str(self.afrikaans_map) + "\n"
+        result += "khoekhoegowab_map: " + str(self.khoekhoegowab_map) + "\n"
         result += ")"
         return result
 
