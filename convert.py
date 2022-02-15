@@ -99,25 +99,30 @@ class Entry:
             fp.write("<Khoekhoegowab>" + self.khoekhoegowab + "\n")
         fp.write("**\n")
 
+    def clean_latex(self, text):
+        return re.sub("&", "\\&", re.sub('\\^',  '\\^{}', text))
+
     def write_latex(self, fp):
+        fp.write("\\begin{entry}\n")
         if self.n_uu:
-            fp.write("\\nuu{" + self.n_uu + "}\n")
+            fp.write("\\nuu{" + self.clean_latex(self.n_uu) + "}\n")
         if self.n_uu_east:
-            fp.write("\\nuu_east{" + self.n_uu_east + "}\n")
+            fp.write("\\nuueast{" + self.clean_latex(self.n_uu_east) + "}\n")
         if self.n_uu_west:
-            fp.write("\\nuu_west{" + self.n_uu_west + "}\n")
+            fp.write("\\nuuwest{" + self.clean_latex(self.n_uu_west) + "}\n")
         if self.ipa:
-            fp.write("\\ipa{" + self.ipa + "}\n")
+            fp.write("\\ipa{" + self.clean_latex(self.ipa) + "}\n")
         if self.ipa_east:
-            fp.write("\\ipa_east{" + self.ipa_east + "}\n")
+            fp.write("\\ipaeast{" + self.clean_latex(self.ipa_east) + "}\n")
         if self.ipa_west:
-            fp.write("\\ipa_west{" + self.ipa_west + "}\n")
+            fp.write("\\ipawest{" + self.clean_latex(self.ipa_west) + "}\n")
         if self.english:
-            fp.write("\\english{" + self.english + "}\n")
+            fp.write("\\english{" + self.clean_latex(self.english) + "}\n")
         if self.afrikaans:
-            fp.write("\\afrikaans{" + self.afrikaans + "}\n")
+            fp.write("\\afrikaans{" + self.clean_latex(self.afrikaans) + "}\n")
         if self.khoekhoegowab:
-            fp.write("\\khoekhoegowab{" + self.khoekhoegowab + "}\n")
+            fp.write("\\khoekhoegowab{" + self.clean_latex(self.khoekhoegowab) + "}\n")
+        fp.write("\\end{entry}\n")
         fp.write("\n\n")
 
 
@@ -267,8 +272,10 @@ class Dictionary:
         orthography = self.convert_to_string(line["Orthography 1"])
         ipa = self.convert_to_string(line["IPA"])
         english = self.convert_to_string(line["English"])
-        afrikaans = self.convert_to_string(line["Afrikaans"])
-        khoekhoegowab = self.convert_to_string(line["Khoekhoegowab"])
+        #afrikaans = self.convert_to_string(line["Afrikaans"])
+        afrikaans = self.convert_to_string(line["Afrikaans community feedback HEADWORD"])
+        #khoekhoegowab = self.convert_to_string(line["Khoekhoegowab"])
+        khoekhoegowab = self.convert_to_string(line["Khoekhoegowab Levi Namaseb"])
 
         # Parse the N|uu and IPA entries as there may be eastern and
         # western values in there.
@@ -304,15 +311,22 @@ class Dictionary:
 
     def write_latex_header(self, fp):
         fp.write("\\documentclass{article}\n")
-        fp.write("\\newcommand{\\nuu}[1]{#1}\n")
-        fp.write("\\newcommand{\\nuu_east}[1]{#1}\n")
-        fp.write("\\newcommand{\\nuu_west}[1]{#1}\n")
-        fp.write("\\newcommand{\\ipa}[1]{#1}\n")
-        fp.write("\\newcommand{\\ipa_east}[1]{#1}\n")
-        fp.write("\\newcommand{\\ipa_west}[1]{#1}\n")
-        fp.write("\\newcommand{\\english}[1]{#1}\n")
-        fp.write("\\newcommand{\\afrikaans}[1]{#1}\n")
-        fp.write("\\newcommand{\\khoekhoegowab}[1]{#1}\n")
+        fp.write("\\usepackage[utf8]{inputenc}\n")
+        fp.write("\\newenvironment{entry}\n")
+        fp.write("{\\noindent\n")
+        fp.write("}\n")
+        fp.write("{\n")
+        fp.write("\\\\[.5em]\n")
+        fp.write("}\n")
+        fp.write("\\newcommand{\\nuu}[1]{\\textbf{#1}}\n")
+        fp.write("\\newcommand{\\nuueast}[1]{\\textbf{#1} (Eastern)}\n")
+        fp.write("\\newcommand{\\nuuwest}[1]{\\textbf{#1} (Western)}\n")
+        fp.write("\\newcommand{\\ipa}[1]{/#1/}\n")
+        fp.write("\\newcommand{\\ipaeast}[1]{/#1/ (Eastern)}\n")
+        fp.write("\\newcommand{\\ipawest}[1]{/#1/ (Western)}\n")
+        fp.write("\\newcommand{\\english}[1]{#1 (English)}\n")
+        fp.write("\\newcommand{\\afrikaans}[1]{#1 (Afrikaans)}\n")
+        fp.write("\\newcommand{\\khoekhoegowab}[1]{#1 (Khoekhoegowab)}\n")
         fp.write("\\begin{document}\n")
 
     def write_latex_footer(self, fp):
