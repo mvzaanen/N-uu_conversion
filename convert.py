@@ -15,6 +15,51 @@ import logging
 from pandas_ods_reader import read_ods
 import re
 
+def write_latex_header(fp):
+    """write_latex_header writes a LaTeX header for the dictionary to fp.
+    """
+    fp.write("\\documentclass{article}\n")
+    fp.write("\\usepackage[utf8]{inputenc}\n")
+    fp.write("\\newenvironment{entry}\n")
+    fp.write("{\\noindent\n")
+    fp.write("}\n")
+    fp.write("{\n")
+    fp.write("\\\\[.5em]\n")
+    fp.write("}\n")
+    fp.write("\\newcommand{\\nuu}[1]{\\textbf{#1}}\n")
+    fp.write("\\newcommand{\\nuueast}[1]{\\textbf{#1} (Eastern)}\n")
+    fp.write("\\newcommand{\\nuuwest}[1]{\\textbf{#1} (Western)}\n")
+    fp.write("\\newcommand{\\ipa}[1]{/#1/}\n")
+    fp.write("\\newcommand{\\ipaeast}[1]{/#1/ (Eastern)}\n")
+    fp.write("\\newcommand{\\ipawest}[1]{/#1/ (Western)}\n")
+    fp.write("\\newcommand{\\english}[1]{#1 (English)}\n")
+    fp.write("\\newcommand{\\afrikaans}[1]{#1 (Afrikaans)}\n")
+    fp.write("\\newcommand{\\khoekhoegowab}[1]{#1 (Khoekhoegowab)}\n")
+    fp.write("\\begin{document}\n")
+
+
+def write_latex_footer(fp):
+    """write_latex_footer writes a LaTeX footer for the dictionary to fp.
+    """
+    fp.write("\\end{document}\n")
+
+
+def clean_latex(text):
+    """clean_latex takes text and replaces characters so they can be
+    displayed correctly in LaTeX.
+    """
+    return re.sub("&", "\\&", re.sub('\\^',  '\\^{}', text))
+
+
+def convert_to_string(cell):
+    """convert the value of a cell to stripped text, but leave it
+    None if it is.
+    """
+    if cell:
+        return str(cell).strip()
+    else:
+        return None
+
 
 class Entry:
     """The Entry class contains information needed to create dictionary entries.  These can be printed in the form useful for the dictionary portal and dictionary app as well as in LaTeX form.
@@ -76,7 +121,11 @@ class Entry:
         """
         return "Entry(n_uu=" + str(self.n_uu) + ", n_uu_east=" + str(self.n_uu_east) + ", n_uu_west=" + str(self.n_uu_west) + ", ipa=" + str(self.ipa) + ", ipa_east=" + str(self.ipa_east) + ", ipa_west=" + str(self.ipa_west) + ", english=" + str(self.english) + ", afrikaans=" + str(self.afrikaans) + ", Khoekhoegowab=" + str(self.khoekhoegowab) + ", line_nr=" + str(self.line_nr) + ")"
 
+
     def write_portal(self, fp):
+        """write_portal writes the entry to fp so the information can
+        be incorporated in the dictionary portal.
+        """
         fp.write("**\n")
         fp.write("<Project>N|uu dictionary\n")
         if self.n_uu:
@@ -99,29 +148,29 @@ class Entry:
             fp.write("<Khoekhoegowab>" + self.khoekhoegowab + "\n")
         fp.write("**\n")
 
-    def clean_latex(self, text):
-        return re.sub("&", "\\&", re.sub('\\^',  '\\^{}', text))
 
     def write_latex(self, fp):
+        """write_latex writes the Entry into latex form to fp.
+        """
         fp.write("\\begin{entry}\n")
         if self.n_uu:
-            fp.write("\\nuu{" + self.clean_latex(self.n_uu) + "}\n")
+            fp.write("\\nuu{" + clean_latex(self.n_uu) + "}\n")
         if self.n_uu_east:
-            fp.write("\\nuueast{" + self.clean_latex(self.n_uu_east) + "}\n")
+            fp.write("\\nuueast{" + clean_latex(self.n_uu_east) + "}\n")
         if self.n_uu_west:
-            fp.write("\\nuuwest{" + self.clean_latex(self.n_uu_west) + "}\n")
+            fp.write("\\nuuwest{" + clean_latex(self.n_uu_west) + "}\n")
         if self.ipa:
-            fp.write("\\ipa{" + self.clean_latex(self.ipa) + "}\n")
+            fp.write("\\ipa{" + clean_latex(self.ipa) + "}\n")
         if self.ipa_east:
-            fp.write("\\ipaeast{" + self.clean_latex(self.ipa_east) + "}\n")
+            fp.write("\\ipaeast{" + clean_latex(self.ipa_east) + "}\n")
         if self.ipa_west:
-            fp.write("\\ipawest{" + self.clean_latex(self.ipa_west) + "}\n")
+            fp.write("\\ipawest{" + clean_latex(self.ipa_west) + "}\n")
         if self.english:
-            fp.write("\\english{" + self.clean_latex(self.english) + "}\n")
+            fp.write("\\english{" + clean_latex(self.english) + "}\n")
         if self.afrikaans:
-            fp.write("\\afrikaans{" + self.clean_latex(self.afrikaans) + "}\n")
+            fp.write("\\afrikaans{" + clean_latex(self.afrikaans) + "}\n")
         if self.khoekhoegowab:
-            fp.write("\\khoekhoegowab{" + self.clean_latex(self.khoekhoegowab) + "}\n")
+            fp.write("\\khoekhoegowab{" + clean_latex(self.khoekhoegowab) + "}\n")
         fp.write("\\end{entry}\n")
         fp.write("\n\n")
 
@@ -169,6 +218,7 @@ class Dictionary:
                 logging.warning("Duplicate value on line " + str(line_nr) + " " + name + ": " + element + " also found on line " + str(self.entries[mapping[element]].line_nr))
             else: # Keep the old value
                 mapping[element] = index
+
 
     def insert(self, n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr):
         """Create and add the entry to the entries list. Len(self.entries)
@@ -253,14 +303,6 @@ class Dictionary:
             general = text
         return general, east, west
 
-    def convert_to_string(self, cell):
-        """convert the value of a cell to stripped text, but leave it
-        None if it is.
-        """
-        if cell:
-            return str(cell).strip()
-        else:
-            return None
 
     def insert_line(self, line, line_nr):
         """Insert_line adds a line from the spreadsheet into the dictionary
@@ -269,19 +311,20 @@ class Dictionary:
         """
         # Convert to string (if needed) and remove any whitespace at beginning
         # or end.
-        orthography = self.convert_to_string(line["Orthography 1"])
-        ipa = self.convert_to_string(line["IPA"])
-        english = self.convert_to_string(line["English"])
-        #afrikaans = self.convert_to_string(line["Afrikaans"])
-        afrikaans = self.convert_to_string(line["Afrikaans community feedback HEADWORD"])
-        #khoekhoegowab = self.convert_to_string(line["Khoekhoegowab"])
-        khoekhoegowab = self.convert_to_string(line["Khoekhoegowab Levi Namaseb"])
+        orthography = convert_to_string(line["Orthography 1"])
+        ipa = convert_to_string(line["IPA"])
+        english = convert_to_string(line["English"])
+        #afrikaans = convert_to_string(line["Afrikaans"])
+        afrikaans = convert_to_string(line["Afrikaans community feedback HEADWORD"])
+        #khoekhoegowab = convert_to_string(line["Khoekhoegowab"])
+        khoekhoegowab = convert_to_string(line["Khoekhoegowab Levi Namaseb"])
 
         # Parse the N|uu and IPA entries as there may be eastern and
         # western values in there.
         n_uu, n_uu_east, n_uu_west = self.parse(orthography, "Orthography 1", line_nr)
         ipa, ipa_east, ipa_west = self.parse(ipa, "IPA", line_nr)
         self.insert(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr)
+
 
     def __str__(self):
         """__str__ provides printable output.
@@ -303,43 +346,28 @@ class Dictionary:
         result += ")"
         return result
 
+
     def write_portal(self, filename):
+        """write_portal writes the dictionary information to the file
+        with name filename in the format that can be used for the
+        dictionary portal.
+        """
         output = open(filename, "w")
         for i in self.entries:
             i.write_portal(output)
         output.close()
 
-    def write_latex_header(self, fp):
-        fp.write("\\documentclass{article}\n")
-        fp.write("\\usepackage[utf8]{inputenc}\n")
-        fp.write("\\newenvironment{entry}\n")
-        fp.write("{\\noindent\n")
-        fp.write("}\n")
-        fp.write("{\n")
-        fp.write("\\\\[.5em]\n")
-        fp.write("}\n")
-        fp.write("\\newcommand{\\nuu}[1]{\\textbf{#1}}\n")
-        fp.write("\\newcommand{\\nuueast}[1]{\\textbf{#1} (Eastern)}\n")
-        fp.write("\\newcommand{\\nuuwest}[1]{\\textbf{#1} (Western)}\n")
-        fp.write("\\newcommand{\\ipa}[1]{/#1/}\n")
-        fp.write("\\newcommand{\\ipaeast}[1]{/#1/ (Eastern)}\n")
-        fp.write("\\newcommand{\\ipawest}[1]{/#1/ (Western)}\n")
-        fp.write("\\newcommand{\\english}[1]{#1 (English)}\n")
-        fp.write("\\newcommand{\\afrikaans}[1]{#1 (Afrikaans)}\n")
-        fp.write("\\newcommand{\\khoekhoegowab}[1]{#1 (Khoekhoegowab)}\n")
-        fp.write("\\begin{document}\n")
-
-    def write_latex_footer(self, fp):
-        fp.write("\\end{document}\n")
 
     def write_latex(self, filename):
+        """Write_latex creates a LaTeX file containing the dictionary
+        information.
+        """
         output = open(filename, "w")
-        self.write_latex_header(output)
+        write_latex_header(output)
         for i in self.entries:
             i.write_latex(output)
-        self.write_latex_footer(output)
+        write_latex_footer(output)
         output.close()
-        pass
 
 
 
@@ -367,8 +395,6 @@ def write_output(base, data):
     data.write_portal(base + ".txt")
     logging.debug("Writing app output to " + base + ".tex")
     data.write_latex(base + ".tex")
-
-
 
 
 def main():
