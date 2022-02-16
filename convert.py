@@ -19,7 +19,8 @@ def write_latex_header(fp):
     """write_latex_header writes a LaTeX header for the dictionary to fp.
     """
     fp.write("\\documentclass{article}\n")
-    fp.write("\\usepackage[utf8]{inputenc}\n")
+#    fp.write("\\usepackage[utf8]{inputenc}\n")
+    fp.write("\\usepackage{tipa}\n")
     fp.write("\\newenvironment{entry}\n")
     fp.write("{\\noindent\n")
     fp.write("}\n")
@@ -29,9 +30,9 @@ def write_latex_header(fp):
     fp.write("\\newcommand{\\nuu}[1]{\\textbf{#1}}\n")
     fp.write("\\newcommand{\\nuueast}[1]{\\textbf{#1} (Eastern)}\n")
     fp.write("\\newcommand{\\nuuwest}[1]{\\textbf{#1} (Western)}\n")
-    fp.write("\\newcommand{\\ipa}[1]{/#1/}\n")
-    fp.write("\\newcommand{\\ipaeast}[1]{/#1/ (Eastern)}\n")
-    fp.write("\\newcommand{\\ipawest}[1]{/#1/ (Western)}\n")
+    fp.write("\\newcommand{\\ipa}[1]{\\textipa{/#1/}}\n")
+    fp.write("\\newcommand{\\ipaeast}[1]{\\textipa{/#1/} (Eastern)}\n")
+    fp.write("\\newcommand{\\ipawest}[1]{\\textipa{/#1/} (Western)}\n")
     fp.write("\\newcommand{\\english}[1]{#1 (English)}\n")
     fp.write("\\newcommand{\\afrikaans}[1]{#1 (Afrikaans)}\n")
     fp.write("\\newcommand{\\khoekhoegowab}[1]{#1 (Khoekhoegowab)}\n")
@@ -44,11 +45,139 @@ def write_latex_footer(fp):
     fp.write("\\end{document}\n")
 
 
-def clean_latex(text):
-    """clean_latex takes text and replaces characters so they can be
+def clean_latex_ipa(text):
+    """clean_latex_ipa takes text and replaces characters so they can be
+    displayed correctly in LaTeX using \textipa.
+    """
+    #  text = text.replace(""
+    text = text.replace("&", "\&")
+    text = text.replace("<", "$<$")
+    text = text.replace("=", "$=$")
+    text = text.replace("^", "\^{}")
+    text = text.replace("~", "\~{}")
+    text = text.replace("Â", "\^{A}")
+    text = text.replace("â", "\^{a}")
+    text = text.replace("æ", "\\ae{}")
+    text = text.replace("ç", "\c{c}")
+    text = text.replace("é", "\\'{e}")
+    text = text.replace("ê", "\\^{e}")
+    text = text.replace("ë", '\\"{e}')
+    text = text.replace("î", "\\^{\\i}")
+    text = text.replace("ò", "\\`{o}")
+    text = text.replace("ô", "\\^{o}")
+    text = text.replace("õ", "\\={o}")
+    text = text.replace("û", "\\^{u}")
+    text = text.replace("Ā", "\\={A}")
+    text = text.replace("ā", "\\={a}")
+    text = text.replace("ē", "\\={e}")
+    text = text.replace("ī", "\\={\\i}")
+    text = text.replace("ŋ", "N")
+    text = text.replace("ō", "\\={o}")
+    text = text.replace("ū", "\\={u}")
+    text = text.replace("ǀ", "\\textvertline{}")
+    text = text.replace("ǁ", "\\textdoublevertline{}")
+    text = text.replace("ǂ", "\\textdoublebarpipe{}")
+    text = text.replace("ǃ", "!")
+    text = text.replace("ɑ", "A") 
+    text = text.replace("ɔ", "O")
+    text = text.replace("ə", "@")
+    text = text.replace("ɛ", "E")
+    text = text.replace("ɟ", "\\textbardotlessj{}")
+    text = text.replace("ɡ", "g")
+    text = text.replace("ɢ", "\\;G")
+    text = text.replace("ɦ", "H")
+    text = text.replace("ɨ", "1")
+    text = text.replace("ɪ", "I")
+    text = text.replace("ɲ", "\\textltailn{}")
+    text = text.replace("ɵ", "8")
+    text = text.replace("ɾ", "R")
+    text = text.replace("ʁ", "K")
+    text = text.replace("ʉ", "0")
+    text = text.replace("ʊ", "U")
+    text = text.replace("ʎ", "L")
+    text = text.replace("ʏ", "Y")
+    text = text.replace("ʔ", "P")
+    text = text.replace("ʘ", "\\!o")
+    text = text.replace("ʛ", "!G")
+    text = text.replace("ʟ", "\\;L")
+    text = text.replace("ʢ", "\\textbarrevglotstop{}")
+    text = text.replace("ʰ", "\\super{h}")
+    text = text.replace("ʱ", "\\super{H}")
+    text = text.replace("ʲ", "\\super{j}")
+    text = text.replace("ʷ", "\\super{w}")
+    text = text.replace("ʼ", "'")
+    text = text.replace("ˀ", "\\textraiseglotstop{}")
+    text = text.replace("ː", ":")
+    text = text.replace("ˤ", "\\super{Q}")
+    text = re.sub(" ̀(.)", "\\`{\1}", text)  # CHECK
+    text = re.sub(" ́(.)", "\\'{\1}", text)  # CHECK
+    text = re.sub(" ̂(.)", "\\^{\1}", text)  # CHECK
+    text = re.sub("ô", "\\^{o}", text)  # CHECK
+    text = re.sub("â", "\\^{a}", text)  # CHECK
+    text = re.sub(" ̃(.)", "\\~{\1}", text)  # CHECK
+    text = re.sub(" ̊(.)", "\\r{\1}", text)  # CHECK
+    text = re.sub(" ̤(.)", "\\\"*{\1}", text)  # CHECK
+    text = re.sub(" ̥(.)", "\\r*{\1}", text)  # CHECK
+    text = re.sub("n̩", "\\\\s{n}", text)  # CHECK
+    text = re.sub(" ̻(.)", "\\textsubsquare{\1}", text)  # CHECK
+    text = text.replace("β", "B")
+    text = text.replace("χ", "X")
+    text = text.replace("ᵊ", "\\super{@}")
+    text = text.replace("ᵏ", "\\super{k}")
+    text = text.replace("ᵑ", "\\super{N}")
+    text = text.replace("ᵡ", "\\super{X}")
+    text = text.replace("ᶠ", "\\super{f}")
+    text = text.replace("ᶢ", "\\super{g}")
+    text = text.replace("ṳ", "\\\"*{u}")
+    text = text.replace("’", "'")
+    text = text.replace("…", "\\ldots{}")
+    text = text.replace("ⁱ", "\\super{i}")
+    text = text.replace("ⁿ", "\\super{n}")
+    return text
+
+
+def clean_latex_text(text):
+    """clean_latex_text takes text and replaces characters so they can be
     displayed correctly in LaTeX.
     """
-    return re.sub("&", "\\&", re.sub('\\^',  '\\^{}', text))
+    # From the N|uu fields
+    text = text.replace("^", "\^{}")
+    text = text.replace("~", "\~{}")
+    text = text.replace("ǃ", "!")
+    text = text.replace("Â", "\^{A}")
+    text = text.replace("â", "\^{a}")
+    text = text.replace("î", "\\^{\\i}")
+    text = text.replace("ô", "\\^{o}")
+    text = text.replace("û", "\\^{u}")
+    text = text.replace("ǀ", "\\textipa{\\textvertline}")
+    text = text.replace("ǁ", "\\textipa{\\textdoublevertline}")
+    text = text.replace("ǂ", "\\textipa{\\textdoublebarpipe}")
+    text = text.replace("ɑ", "\\textipa{A}") 
+    text = text.replace("ɟ", "\\textipa{\\textbardotlessj{}}")
+    text = text.replace("ʘ", "\\textipa{\\!o}")
+    text = text.replace("ʼ", "'")  # CHECK
+    text = text.replace(" ̂", "\\^{}")  # CHECK
+    text = text.replace(" ̃", "\\~{}")  # CHECK
+    text = text.replace("χ", "\\textipa{X}")
+    text = text.replace("’", "'")  # CHECK
+    # From the Afrikaans, English, Khoekhoegowab fields
+    text = text.replace("\"", "``")  # CHECK
+    text = text.replace("<", "$<$")
+    text = text.replace("â", "\\^{a}")
+    text = text.replace("é", "\\'{e}")
+    text = text.replace("ê", "\\^{e}")
+    text = text.replace("ë", "\\\"{e}")
+    text = text.replace("ô", "\\^{o}")
+    text = text.replace("û", "\\^{u}")
+    text = text.replace("Ā", "\\={A}")
+    text = text.replace("ā", "\\={a}")
+    text = text.replace("ē", "\\={e}")
+    text = text.replace("ī", "\\={\i}")
+    text = text.replace("ō", "\\={o}")
+    text = text.replace("ū", "\\={u}")
+    text = text.replace("…", "\\ldots")
+    text = re.sub("î", "\\textipa{\\^{i}}", text)  # CHECK
+    return text
 
 
 def convert_to_string(cell):
@@ -121,6 +250,10 @@ class Entry:
         """
         return "Entry(n_uu=" + str(self.n_uu) + ", n_uu_east=" + str(self.n_uu_east) + ", n_uu_west=" + str(self.n_uu_west) + ", ipa=" + str(self.ipa) + ", ipa_east=" + str(self.ipa_east) + ", ipa_west=" + str(self.ipa_west) + ", english=" + str(self.english) + ", afrikaans=" + str(self.afrikaans) + ", Khoekhoegowab=" + str(self.khoekhoegowab) + ", line_nr=" + str(self.line_nr) + ")"
 
+    def __lt__(self, other):
+        """__lt__ implements comparison for (alphabetic) ordering.
+        """
+        return self.key < other.key
 
     def write_portal(self, fp):
         """write_portal writes the entry to fp so the information can
@@ -154,23 +287,23 @@ class Entry:
         """
         fp.write("\\begin{entry}\n")
         if self.n_uu:
-            fp.write("\\nuu{" + clean_latex(self.n_uu) + "}\n")
+            fp.write("\\nuu{" + clean_latex_text(self.n_uu) + "}\n")
         if self.n_uu_east:
-            fp.write("\\nuueast{" + clean_latex(self.n_uu_east) + "}\n")
+            fp.write("\\nuueast{" + clean_latex_text(self.n_uu_east) + "}\n")
         if self.n_uu_west:
-            fp.write("\\nuuwest{" + clean_latex(self.n_uu_west) + "}\n")
+            fp.write("\\nuuwest{" + clean_latex_text(self.n_uu_west) + "}\n")
         if self.ipa:
-            fp.write("\\ipa{" + clean_latex(self.ipa) + "}\n")
+            fp.write("\\ipa{" + clean_latex_ipa(self.ipa) + "}\n")
         if self.ipa_east:
-            fp.write("\\ipaeast{" + clean_latex(self.ipa_east) + "}\n")
+            fp.write("\\ipaeast{" + clean_latex_ipa(self.ipa_east) + "}\n")
         if self.ipa_west:
-            fp.write("\\ipawest{" + clean_latex(self.ipa_west) + "}\n")
+            fp.write("\\ipawest{" + clean_latex_ipa(self.ipa_west) + "}\n")
         if self.english:
-            fp.write("\\english{" + clean_latex(self.english) + "}\n")
+            fp.write("\\english{" + clean_latex_text(self.english) + "}\n")
         if self.afrikaans:
-            fp.write("\\afrikaans{" + clean_latex(self.afrikaans) + "}\n")
+            fp.write("\\afrikaans{" + clean_latex_text(self.afrikaans) + "}\n")
         if self.khoekhoegowab:
-            fp.write("\\khoekhoegowab{" + clean_latex(self.khoekhoegowab) + "}\n")
+            fp.write("\\khoekhoegowab{" + clean_latex_text(self.khoekhoegowab) + "}\n")
         fp.write("\\end{entry}\n")
         fp.write("\n\n")
 
@@ -364,7 +497,7 @@ class Dictionary:
         """
         output = open(filename, "w")
         write_latex_header(output)
-        for i in self.entries:
+        for i in sorted (self.entries):
             i.write_latex(output)
         write_latex_footer(output)
         output.close()
