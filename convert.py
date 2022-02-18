@@ -19,7 +19,6 @@ def write_latex_header(fp):
     """write_latex_header writes a LaTeX header for the dictionary to fp.
     """
     fp.write("\\documentclass{article}\n")
-#    fp.write("\\usepackage[utf8]{inputenc}\n")
     fp.write("\\usepackage{tipa}\n")
     fp.write("\\newenvironment{entry}\n")
     fp.write("{\\noindent\n")
@@ -44,140 +43,187 @@ def write_latex_footer(fp):
     """
     fp.write("\\end{document}\n")
 
+ipa_mapping = {
+	ord("½") : "\\textonehalf ",
+	ord("¼") : "\\textonequarter ",
+	ord("¾") : "\\textthreequarter ",
+    ord("&") : "\&",
+    ord("<") : "$<$",
+    ord("=") : "$=$",
+    ord("^") : "\^{}",
+    ord("~") : "\~{}",
+    ord("Â") : "\^{A}",
+    ord("â") : "\^{a}",
+    ord("æ") : "\\ae{}",
+    ord("ç") : "\c{c}",
+    ord("é") : "\\'{e}",
+    ord("ê") : "\\^{e}",
+    ord("ë") : '\\"{e}',
+    ord("î") : "\\^{\\i}",
+    ord("ò") : "\\`{o}",
+    ord("ô") : "\\^{o}",
+    ord("õ") : "\\={o}",
+    #    ord("û") : "\\^{u}",
+    ord("Ā") : "\\={A}",
+    ord("ā") : "\\={a}",
+    ord("ē") : "\\={e}",
+    ord("ī") : "\\={\\i}",
+    ord("ŋ") : "N",
+    ord("ō") : "\\={o}",
+    ord("ū") : "\\={u}",
+    ord("ǀ") : "\\textvertline{}",
+    ord("ǁ") : "\\textdoublevertline{}",
+    ord("ǂ") : "\\textdoublebarpipe{}",
+    ord("ǃ") : "!",
+    ord("ɑ") : "A", 
+    ord("ɔ") : "O",
+    ord("ə") : "@",
+    ord("ɛ") : "E",
+    ord("ɟ") : "\\textbardotlessj{}",
+    ord("ɡ") : "g",
+    ord("ɢ") : "\\;G",
+    ord("ɦ") : "H",
+    ord("ɨ") : "1",
+    ord("ɪ") : "I",
+    ord("ɲ") : "\\textltailn{}",
+    ord("ɵ") : "8",
+    ord("ɾ") : "R",
+    ord("ʁ") : "K",
+    ord("ʉ") : "0",
+    ord("ʊ") : "U",
+    ord("ʎ") : "L",
+    ord("ʏ") : "Y",
+    ord("ʔ") : "P",
+    ord("ʘ") : "\\!o",
+    ord("ʛ") : "!G",
+    ord("ʟ") : "\\;L",
+    ord("ʢ") : "\\textbarrevglotstop{}",
+    ord("ʰ") : "\\super{h}",
+    ord("ʱ") : "\\super{H}",
+    ord("ʲ") : "\\super{j}",
+    ord("ʷ") : "\\super{w}",
+    ord("ˀ") : "\\textraiseglotstop{}",
+    ord("ˤ") : "\\super{Q}",
+    ord("β") : "B",
+    ord("χ") : "X",
+    ord("ᵊ") : "\\super{@}",
+    ord("ᵏ") : "\\super{k}",
+    ord("ᵑ") : "\\super{N}",
+    ord("ᵡ") : "\\super{X}",
+    ord("ᶠ") : "\\super{f}",
+    ord("ᶢ") : "\\super{g}",
+    ord("ṳ") : "\\\"*{u}",
+    ord("’") : "'",
+    ord("…") : "\\ldots{}",
+    ord("ⁱ") : "\\super{i}",
+    ord("ⁿ") : "\\super{n}",
+    302 : "\\^{", 
+    700 : "\\textvbaraccent{", #    ord("'") : "\\~{\1}", # CHECK
+    720 : ":",  # normal colon, { for consistency with other high values
+    768 : "\\`{", #    ord(" ̀") : "\\`{\1}", # CHECK
+    769 : "\\'{", #    ord(" ́") : "\\'{\1}", # CHECK
+    770 : "\\^{", #    ord(" ̂") : "\\^{\1}", # CHECK
+    771 : "\\~{", #    ord(" ̃") : "\\~{\1}", # CHECK
+    778 : "\\r{", #    ord(" ̊") : "\\r{\1}", # CHECK
+#    ord(" ̤") : "\\\"*{\1}", # CHECK
+#    ord(" ̥") : "\\r*{\1}", # CHECK
+    804 : "\\\"*{", # ord(" ̤") : "\\\"*{\1}", # CHECK
+    805 : "\\r{", #    ord(" ̊") : "\\r{\1}", # CHECK
+    809 : "\\s{", #    ord("n̩") : "\\\\s{n}", # CHECK
+    827 : "\\textsubsquare{", #    ord(" ̻") : "\\textsubsquare{\1}", # CHECK
+}
 
 def clean_latex_ipa(text):
     """clean_latex_ipa takes text and replaces characters so they can be
     displayed correctly in LaTeX using \textipa.
     """
-    #  text = text.replace(""
-    text = text.replace("&", "\&")
-    text = text.replace("<", "$<$")
-    text = text.replace("=", "$=$")
-    text = text.replace("^", "\^{}")
-    text = text.replace("~", "\~{}")
-    text = text.replace("Â", "\^{A}")
-    text = text.replace("â", "\^{a}")
-    text = text.replace("æ", "\\ae{}")
-    text = text.replace("ç", "\c{c}")
-    text = text.replace("é", "\\'{e}")
-    text = text.replace("ê", "\\^{e}")
-    text = text.replace("ë", '\\"{e}')
-    text = text.replace("î", "\\^{\\i}")
-    text = text.replace("ò", "\\`{o}")
-    text = text.replace("ô", "\\^{o}")
-    text = text.replace("õ", "\\={o}")
-    text = text.replace("û", "\\^{u}")
-    text = text.replace("Ā", "\\={A}")
-    text = text.replace("ā", "\\={a}")
-    text = text.replace("ē", "\\={e}")
-    text = text.replace("ī", "\\={\\i}")
-    text = text.replace("ŋ", "N")
-    text = text.replace("ō", "\\={o}")
-    text = text.replace("ū", "\\={u}")
-    text = text.replace("ǀ", "\\textvertline{}")
-    text = text.replace("ǁ", "\\textdoublevertline{}")
-    text = text.replace("ǂ", "\\textdoublebarpipe{}")
-    text = text.replace("ǃ", "!")
-    text = text.replace("ɑ", "A") 
-    text = text.replace("ɔ", "O")
-    text = text.replace("ə", "@")
-    text = text.replace("ɛ", "E")
-    text = text.replace("ɟ", "\\textbardotlessj{}")
-    text = text.replace("ɡ", "g")
-    text = text.replace("ɢ", "\\;G")
-    text = text.replace("ɦ", "H")
-    text = text.replace("ɨ", "1")
-    text = text.replace("ɪ", "I")
-    text = text.replace("ɲ", "\\textltailn{}")
-    text = text.replace("ɵ", "8")
-    text = text.replace("ɾ", "R")
-    text = text.replace("ʁ", "K")
-    text = text.replace("ʉ", "0")
-    text = text.replace("ʊ", "U")
-    text = text.replace("ʎ", "L")
-    text = text.replace("ʏ", "Y")
-    text = text.replace("ʔ", "P")
-    text = text.replace("ʘ", "\\!o")
-    text = text.replace("ʛ", "!G")
-    text = text.replace("ʟ", "\\;L")
-    text = text.replace("ʢ", "\\textbarrevglotstop{}")
-    text = text.replace("ʰ", "\\super{h}")
-    text = text.replace("ʱ", "\\super{H}")
-    text = text.replace("ʲ", "\\super{j}")
-    text = text.replace("ʷ", "\\super{w}")
-    text = text.replace("ʼ", "'")
-    text = text.replace("ˀ", "\\textraiseglotstop{}")
-    text = text.replace("ː", ":")
-    text = text.replace("ˤ", "\\super{Q}")
-    text = re.sub(" ̀(.)", "\\`{\1}", text)  # CHECK
-    text = re.sub(" ́(.)", "\\'{\1}", text)  # CHECK
-    text = re.sub(" ̂(.)", "\\^{\1}", text)  # CHECK
-    text = re.sub("ô", "\\^{o}", text)  # CHECK
-    text = re.sub("â", "\\^{a}", text)  # CHECK
-    text = re.sub(" ̃(.)", "\\~{\1}", text)  # CHECK
-    text = re.sub(" ̊(.)", "\\r{\1}", text)  # CHECK
-    text = re.sub(" ̤(.)", "\\\"*{\1}", text)  # CHECK
-    text = re.sub(" ̥(.)", "\\r*{\1}", text)  # CHECK
-    text = re.sub("n̩", "\\\\s{n}", text)  # CHECK
-    text = re.sub(" ̻(.)", "\\textsubsquare{\1}", text)  # CHECK
-    text = text.replace("β", "B")
-    text = text.replace("χ", "X")
-    text = text.replace("ᵊ", "\\super{@}")
-    text = text.replace("ᵏ", "\\super{k}")
-    text = text.replace("ᵑ", "\\super{N}")
-    text = text.replace("ᵡ", "\\super{X}")
-    text = text.replace("ᶠ", "\\super{f}")
-    text = text.replace("ᶢ", "\\super{g}")
-    text = text.replace("ṳ", "\\\"*{u}")
-    text = text.replace("’", "'")
-    text = text.replace("…", "\\ldots{}")
-    text = text.replace("ⁱ", "\\super{i}")
-    text = text.replace("ⁿ", "\\super{n}")
-    return text
+    # lookahead are symbols that require one place lookahead
+    # (combining unicode)
+    lookahead = [770, 771, 809]
+    # nonlookahead also require closing } but do not have lookahead
+    nonlookahead = [302, 700, 768, 769, 778, 804, 805, 827]
+    latex = ""
+    bracket_open = False
+    for l in range(len(text)):
+        # Do one lookahead for 770 and 771 (combining unicode)
+        if l < len(text) - 1 and ord(text[l + 1]) in lookahead:
+            bracket_open = True
+            latex += ipa_mapping[ord(text[l + 1])]
+        # Skip combining unicodes as they have already been handled in
+        # lookahead
+        if ord(text[l]) in nonlookahead:
+            bracket_open = True
+        if ord(text[l]) not in lookahead: # one lookahead
+            if ord(text[l]) in ipa_mapping:
+                latex += ipa_mapping[ord(text[l])]
+            else:
+                latex += text[l]
+        if bracket_open:
+            latex += "}"
+            bracket_open = False
+    return latex
 
+text_mapping = {
+    ord("&") : "\\&",
+    ord("^") : "\\^{}",
+    ord("~") : "\\~{}",
+    ord("ǃ") : "!",
+    ord("Â") : "\\^{A}",
+    ord("â") : "\\^{a}",
+    ord("î") : "\\^{\\i}",
+    ord("ô") : "\\^{o}",
+    ord("û") : "\\^{u}",
+    ord("ǀ") : "\\textipa{\\textvertline}",
+    ord("ǁ") : "\\textipa{\\textdoublevertline}",
+    ord("ǂ") : "\\textipa{\\textdoublebarpipe}",
+    ord("ɑ") : "\\textipa{A}", 
+    ord("ɟ") : "\\textipa{\\textbardotlessj{}}",
+    ord("ʘ") : "\\textipa{\\!o}",
+    ord("χ") : "\\textipa{X}",
+    ord("’") : "'",  # CHECK
+    ord("\"") : "``",  # CHECK
+    ord("<") : "$<$",
+    ord("â") : "\\^{a}",
+    ord("é") : "\\'{e}",
+    ord("ê") : "\\^{e}",
+    ord("ë") : "\\\"{e}",
+    ord("ô") : "\\^{o}",
+    ord("û") : "\\^{u}",
+    ord("Ā") : "\\={A}",
+    ord("ā") : "\\={a}",
+    ord("ē") : "\\={e}",
+    ord("ī") : "\\={\i}",
+    ord("ō") : "\\={o}",
+    ord("ū") : "\\={u}",
+    700 : "'", #    ord("'") : "\\~{\1}", # CHECK
+    770 : "\\^{", #    ord(" ̂") : "\\^{\1}", # CHECK
+    771 : "\\~{", #    ord(" ̃") : "\\~{\1}", # CHECK
+    8230 : "\ldots", #    ord(" ̃") : "\\~{\1}", # CHECK
+}
 
 def clean_latex_text(text):
     """clean_latex_text takes text and replaces characters so they can be
     displayed correctly in LaTeX.
     """
-    # From the N|uu fields
-    text = text.replace("^", "\^{}")
-    text = text.replace("~", "\~{}")
-    text = text.replace("ǃ", "!")
-    text = text.replace("Â", "\^{A}")
-    text = text.replace("â", "\^{a}")
-    text = text.replace("î", "\\^{\\i}")
-    text = text.replace("ô", "\\^{o}")
-    text = text.replace("û", "\\^{u}")
-    text = text.replace("ǀ", "\\textipa{\\textvertline}")
-    text = text.replace("ǁ", "\\textipa{\\textdoublevertline}")
-    text = text.replace("ǂ", "\\textipa{\\textdoublebarpipe}")
-    text = text.replace("ɑ", "\\textipa{A}") 
-    text = text.replace("ɟ", "\\textipa{\\textbardotlessj{}}")
-    text = text.replace("ʘ", "\\textipa{\\!o}")
-    text = text.replace("ʼ", "'")  # CHECK
-    text = text.replace(" ̂", "\\^{}")  # CHECK
-    text = text.replace(" ̃", "\\~{}")  # CHECK
-    text = text.replace("χ", "\\textipa{X}")
-    text = text.replace("’", "'")  # CHECK
-    # From the Afrikaans, English, Khoekhoegowab fields
-    text = text.replace("\"", "``")  # CHECK
-    text = text.replace("<", "$<$")
-    text = text.replace("â", "\\^{a}")
-    text = text.replace("é", "\\'{e}")
-    text = text.replace("ê", "\\^{e}")
-    text = text.replace("ë", "\\\"{e}")
-    text = text.replace("ô", "\\^{o}")
-    text = text.replace("û", "\\^{u}")
-    text = text.replace("Ā", "\\={A}")
-    text = text.replace("ā", "\\={a}")
-    text = text.replace("ē", "\\={e}")
-    text = text.replace("ī", "\\={\i}")
-    text = text.replace("ō", "\\={o}")
-    text = text.replace("ū", "\\={u}")
-    text = text.replace("…", "\\ldots")
-    text = re.sub("î", "\\textipa{\\^{i}}", text)  # CHECK
-    return text
+    latex = ""
+    bracket_open = False
+    for l in range(len(text)):
+        # Do one lookahead for 770 and 771 (combining unicode)
+        if l < len(text) - 1 and ord(text[l + 1]) in [770, 771]:
+            bracket_open = True
+            latex += text_mapping[ord(text[l + 1])]
+        # Skip combining unicodes as they have already been handled in
+        # lookahead
+        if ord(text[l]) not in [770, 771]: # one lookahead
+            if ord(text[l]) in text_mapping:
+                latex += text_mapping[ord(text[l])]
+            else:
+                latex += text[l]
+        if bracket_open:
+            latex += "}"
+            bracket_open = False
+    return latex
+
 
 
 def convert_to_string(cell):
@@ -497,7 +543,8 @@ class Dictionary:
         """
         output = open(filename, "w")
         write_latex_header(output)
-        for i in sorted (self.entries):
+        for i in (self.entries):
+            #for i in sorted (self.entries):
             i.write_latex(output)
         write_latex_footer(output)
         output.close()
