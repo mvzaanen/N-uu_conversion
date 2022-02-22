@@ -77,32 +77,32 @@ ipa_mapping = {
     62 : "$>$",
     63 : "?",
     64 : "@",
-    65 : "\mbox{A}",
-    66 : "\mbox{B}",
-    67 : "\mbox{C}",
-    68 : "\mbox{D}",
-    69 : "\mbox{E}",
-    70 : "\mbox{F}",
-    71 : "\mbox{G}",
-    72 : "\mbox{H}",
-    73 : "\mbox{I}",
-    74 : "\mbox{J}",
-    75 : "\mbox{K}",
-    76 : "\mbox{L}",
-    77 : "\mbox{M}",
-    78 : "\mbox{N}",
-    79 : "\mbox{O}",
-    80 : "\mbox{P}",
-    81 : "\mbox{Q}",
-    82 : "\mbox{R}",
-    83 : "\mbox{S}",
-    84 : "\mbox{T}",
-    85 : "\mbox{U}",
-    86 : "\mbox{V}",
-    87 : "\mbox{W}",
-    88 : "\mbox{X}",
-    89 : "\mbox{Y}",
-    90 : "\mbox{Z}",
+    65 : "\\*{A}",
+    66 : "\\*{B}",
+    67 : "\\*{C}",
+    68 : "\\*{D}",
+    69 : "\\*{E}",
+    70 : "\\*{F}",
+    71 : "\\*{G}",
+    72 : "\\*{H}",
+    73 : "\\*{I}",
+    74 : "\\*{J}",
+    75 : "\\*{K}",
+    76 : "\\*{L}",
+    77 : "\\*{M}",
+    78 : "\\*{N}",
+    79 : "\\*{O}",
+    80 : "\\*{P}",
+    81 : "\\*{Q}",
+    82 : "\\*{R}",
+    83 : "\\*{S}",
+    84 : "\\*{T}",
+    85 : "\\*{U}",
+    86 : "\\*{V}",
+    87 : "\\*{W}",
+    88 : "\\*{X}",
+    89 : "\\*{Y}",
+    90 : "\\*{Z}",
     91 : "[",
     92 : "\\",
     93 : "]",
@@ -204,7 +204,7 @@ ipa_mapping = {
     ord("…") : "\\ldots{}",
     ord("ⁱ") : "\\super{i}",
     ord("ⁿ") : "\\super{n}",
-    700 : "\\textvbaraccent{}", #    ord("'") : "\\~{\1}", # CHECK
+    700 : "'", #    ord("'") : "\\~{\1}", # CHECK
     720 : ":",  # normal colon, { for consistency with other high values
     768 : "\\`{", #    ord(" ̀") : "\\`{\1}", # CHECK
     769 : "\\'{", #    ord(" ́") : "\\'{\1}", # CHECK
@@ -388,7 +388,7 @@ def clean(text, mapping):
     result = ""
     index = 0
     while index < len(text):
-        base = mapping[ord(text[index])]
+        base = mapping[ord(text[index])] # Grab base letter
         if index + 1 < len(text) and ord(text[index + 1]) >= 768 and ord(text[index + 1]) <= 880: # test if next char is combining
                 (combined, index, accent_above) = handle_combining(text, index + 1, base, mapping)
                 result += combined
