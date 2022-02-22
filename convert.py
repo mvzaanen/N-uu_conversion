@@ -352,6 +352,15 @@ text_mapping = {
     8230 : "\ldots", #    ord(" ̃") : "\\~{\1}", # CHECK
 }
 
+
+def is_above(char):
+    """is_above returns true if the char which is an ord value is a
+    combining character that is located above the letter, false
+    otherwise.
+    """
+    return (char >= 768 and char <= 789) or (char == 794) or (char >= 829 and char <= 836) or (char == 838) or (char >= 842 and char <= 844) or (char >= 864 and char <= 865)
+
+
 def handle_combining(text, index, base, mapping):
     """handle_combining handles a letter that has combining
     characters.  These are always found after the actual letter. 
@@ -359,16 +368,19 @@ def handle_combining(text, index, base, mapping):
     characters, base is the base letter, mapping is the mapping to be
     applied.
     """
-    result = mapping[ord(text[index])] # grab combining character
+    combining_char = ord(text[index])
+    accent_above = is_above(combining_char)
+    result = mapping[combining_char] # grab combining character
     if index + 1 < len(text) and ord(text[index + 1]) >= 768 and ord(text[index + 1]) <= 880: # test if next char is combining
-        (combined, index) = handle_combining(text, index + 1, base, mapping)
-        return (result + combined + "}", index)
+        (combined, index, rest_above) = handle_combining(text, index + 1, base, mapping)
+        accent_above = accent_above or rest_above  # either this character has an accent above or one of the following chars
+        return (result + combined + "}", index, accent_above)
     else:
-        if base == "i":
-            base = "\\i" # remove dot on i @@TODO CHECK super vs sub
-        elif base == "j":
-            base = "\\j" # remove dot on i @@TODO CHECK super vs sub
-        return (result + base + "}", index)
+        if accent_above and base == "i":
+            base = "\\i" # remove dot on i
+        elif accent_above and base == "j":
+            base = "\\j" # remove dot on j
+        return (result + base + "}", index, accent_above)
 
 
 def clean(text, mapping):
@@ -380,7 +392,7 @@ def clean(text, mapping):
     while index < len(text):
         base = mapping[ord(text[index])]
         if index + 1 < len(text) and ord(text[index + 1]) >= 768 and ord(text[index + 1]) <= 880: # test if next char is combining
-                (combined, index) = handle_combining(text, index + 1, base, mapping)
+                (combined, index, accent_above) = handle_combining(text, index + 1, base, mapping)
                 result += combined
         else:
             result += base
