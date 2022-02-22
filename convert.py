@@ -44,14 +44,101 @@ def write_latex_footer(fp):
     fp.write("\\end{document}\n")
 
 ipa_mapping = {
-	ord("½") : "\\textonehalf ",
-	ord("¼") : "\\textonequarter ",
-	ord("¾") : "\\textthreequarter ",
-    ord("&") : "\&",
-    ord("<") : "$<$",
-    ord("=") : "$=$",
-    ord("^") : "\^{}",
-    ord("~") : "\~{}",
+    32 : " ",
+    33 : "!",
+    34 : "\"",
+    35 : "\\#",
+    36 : "\\$",
+    37 : "\\%",
+    38 : "\\&",
+    39 : "'",
+    40 : "(",
+    41 : ")",
+    42 : "*",
+    43 : "+",
+    44 : ",",
+    45 : "-",
+    46 : ".",
+    47 : "/",
+    48 : "0",
+    49 : "1",
+    50 : "2",
+    51 : "3",
+    52 : "4",
+    53 : "5",
+    54 : "6",
+    55 : "7",
+    56 : "8",
+    57 : "9",
+    58 : ":",
+    59 : ";",
+    60 : "$<$",
+    61 : "$=$",
+    62 : "$>$",
+    63 : "?",
+    64 : "@",
+    65 : "\mbox{A}",
+    66 : "\mbox{B}",
+    67 : "\mbox{C}",
+    68 : "\mbox{D}",
+    69 : "\mbox{E}",
+    70 : "\mbox{F}",
+    71 : "\mbox{G}",
+    72 : "\mbox{H}",
+    73 : "\mbox{I}",
+    74 : "\mbox{J}",
+    75 : "\mbox{K}",
+    76 : "\mbox{L}",
+    77 : "\mbox{M}",
+    78 : "\mbox{N}",
+    79 : "\mbox{O}",
+    80 : "\mbox{P}",
+    81 : "\mbox{Q}",
+    82 : "\mbox{R}",
+    83 : "\mbox{S}",
+    84 : "\mbox{T}",
+    85 : "\mbox{U}",
+    86 : "\mbox{V}",
+    87 : "\mbox{W}",
+    88 : "\mbox{X}",
+    89 : "\mbox{Y}",
+    90 : "\mbox{Z}",
+    91 : "[",
+    92 : "\\",
+    93 : "]",
+    94 : "\\^{}",
+    95 : "\\_",
+    96 : "`",
+    97 : "a",
+    98 : "b",
+    99 : "c",
+    100 : "d",
+    101 : "e",
+    102 : "f",
+    103 : "g",
+    104 : "h",
+    105 : "i",
+    106 : "j",
+    107 : "k",
+    108 : "l",
+    109 : "m",
+    110 : "n",
+    111 : "o",
+    112 : "p",
+    113 : "q",
+    114 : "r",
+    115 : "s",
+    116 : "t",
+    117 : "u",
+    118 : "v",
+    119 : "w",
+    120 : "x",
+    121 : "y",
+    122 : "z",
+    123 : "\\{",
+    124 : "$|$",
+    125 : "\\}",
+    126 : "\\~{}",
     ord("Â") : "\^{A}",
     ord("â") : "\^{a}",
     ord("æ") : "\\ae{}",
@@ -63,7 +150,7 @@ ipa_mapping = {
     ord("ò") : "\\`{o}",
     ord("ô") : "\\^{o}",
     ord("õ") : "\\={o}",
-    #    ord("û") : "\\^{u}",
+    ord("û") : "\\^{u}",
     ord("Ā") : "\\={A}",
     ord("ā") : "\\={a}",
     ord("ē") : "\\={e}",
@@ -117,53 +204,117 @@ ipa_mapping = {
     ord("…") : "\\ldots{}",
     ord("ⁱ") : "\\super{i}",
     ord("ⁿ") : "\\super{n}",
-    302 : "\\^{", 
-    700 : "\\textvbaraccent{", #    ord("'") : "\\~{\1}", # CHECK
+    700 : "\\textvbaraccent{}", #    ord("'") : "\\~{\1}", # CHECK
     720 : ":",  # normal colon, { for consistency with other high values
     768 : "\\`{", #    ord(" ̀") : "\\`{\1}", # CHECK
     769 : "\\'{", #    ord(" ́") : "\\'{\1}", # CHECK
     770 : "\\^{", #    ord(" ̂") : "\\^{\1}", # CHECK
     771 : "\\~{", #    ord(" ̃") : "\\~{\1}", # CHECK
     778 : "\\r{", #    ord(" ̊") : "\\r{\1}", # CHECK
-#    ord(" ̤") : "\\\"*{\1}", # CHECK
-#    ord(" ̥") : "\\r*{\1}", # CHECK
     804 : "\\\"*{", # ord(" ̤") : "\\\"*{\1}", # CHECK
     805 : "\\r{", #    ord(" ̊") : "\\r{\1}", # CHECK
     809 : "\\s{", #    ord("n̩") : "\\\\s{n}", # CHECK
     827 : "\\textsubsquare{", #    ord(" ̻") : "\\textsubsquare{\1}", # CHECK
+#    ord(" ̤") : "\\\"*{\1}", # CHECK
+#    ord(" ̥") : "\\r*{\1}", # CHECK
 }
 
-def clean_latex_ipa(text):
-    """clean_latex_ipa takes text and replaces characters so they can be
-    displayed correctly in LaTeX using \textipa.
-    """
-    # lookahead are symbols that require one place lookahead
-    # (combining unicode)
-    lookahead = [770, 771, 809]
-    # nonlookahead also require closing } but do not have lookahead
-    nonlookahead = [302, 700, 768, 769, 778, 804, 805, 827]
-    latex = ""
-    bracket_open = False
-    for l in range(len(text)):
-        # Do one lookahead for 770 and 771 (combining unicode)
-        if l < len(text) - 1 and ord(text[l + 1]) in lookahead:
-            bracket_open = True
-            latex += ipa_mapping[ord(text[l + 1])]
-        # Skip combining unicodes as they have already been handled in
-        # lookahead
-        if ord(text[l]) in nonlookahead:
-            bracket_open = True
-        if ord(text[l]) not in lookahead: # one lookahead
-            if ord(text[l]) in ipa_mapping:
-                latex += ipa_mapping[ord(text[l])]
-            else:
-                latex += text[l]
-        if bracket_open:
-            latex += "}"
-            bracket_open = False
-    return latex
-
 text_mapping = {
+    32 : " ",
+    33 : "!",
+    34 : "\"",
+    35 : "\\#",
+    36 : "\\$",
+    37 : "\\%",
+    38 : "\\&",
+    39 : "'",
+    40 : "(",
+    41 : ")",
+    42 : "*",
+    43 : "+",
+    44 : ",",
+    45 : "-",
+    46 : ".",
+    47 : "/",
+    48 : "0",
+    49 : "1",
+    50 : "2",
+    51 : "3",
+    52 : "4",
+    53 : "5",
+    54 : "6",
+    55 : "7",
+    56 : "8",
+    57 : "9",
+    58 : ":",
+    59 : ";",
+    60 : "$<$",
+    61 : "$=$",
+    62 : "$>$",
+    63 : "?",
+    64 : "@",
+    65 : "A",
+    66 : "B",
+    67 : "C",
+    68 : "D",
+    69 : "E",
+    70 : "F",
+    71 : "G",
+    72 : "H",
+    73 : "I",
+    74 : "J",
+    75 : "K",
+    76 : "L",
+    77 : "M",
+    78 : "N",
+    79 : "O",
+    80 : "P",
+    81 : "Q",
+    82 : "R",
+    83 : "S",
+    84 : "T",
+    85 : "U",
+    86 : "V",
+    87 : "W",
+    88 : "X",
+    89 : "Y",
+    90 : "Z",
+    91 : "[",
+    92 : "\\",
+    93 : "]",
+    94 : "\\^{}",
+    95 : "\\_",
+    96 : "`",
+    97 : "a",
+    98 : "b",
+    99 : "c",
+    100 : "d",
+    101 : "e",
+    102 : "f",
+    103 : "g",
+    104 : "h",
+    105 : "i",
+    106 : "j",
+    107 : "k",
+    108 : "l",
+    109 : "m",
+    110 : "n",
+    111 : "o",
+    112 : "p",
+    113 : "q",
+    114 : "r",
+    115 : "s",
+    116 : "t",
+    117 : "u",
+    118 : "v",
+    119 : "w",
+    120 : "x",
+    121 : "y",
+    122 : "z",
+    123 : "\\{",
+    124 : "$|$",
+    125 : "\\}",
+    126 : "\\~{}",
     ord("&") : "\\&",
     ord("^") : "\\^{}",
     ord("~") : "\\~{}",
@@ -201,29 +352,40 @@ text_mapping = {
     8230 : "\ldots", #    ord(" ̃") : "\\~{\1}", # CHECK
 }
 
-def clean_latex_text(text):
-    """clean_latex_text takes text and replaces characters so they can be
-    displayed correctly in LaTeX.
+def handle_combining(text, index, base, mapping):
+    """handle_combining handles a letter that has combining
+    characters.  These are always found after the actual letter. 
+    text is the full text, index is the start of the combining
+    characters, base is the base letter, mapping is the mapping to be
+    applied.
     """
-    latex = ""
-    bracket_open = False
-    for l in range(len(text)):
-        # Do one lookahead for 770 and 771 (combining unicode)
-        if l < len(text) - 1 and ord(text[l + 1]) in [770, 771]:
-            bracket_open = True
-            latex += text_mapping[ord(text[l + 1])]
-        # Skip combining unicodes as they have already been handled in
-        # lookahead
-        if ord(text[l]) not in [770, 771]: # one lookahead
-            if ord(text[l]) in text_mapping:
-                latex += text_mapping[ord(text[l])]
-            else:
-                latex += text[l]
-        if bracket_open:
-            latex += "}"
-            bracket_open = False
-    return latex
+    result = mapping[ord(text[index])] # grab combining character
+    if index + 1 < len(text) and ord(text[index + 1]) >= 768 and ord(text[index + 1]) <= 880: # test if next char is combining
+        (combined, index) = handle_combining(text, index + 1, base, mapping)
+        return (result + combined + "}", index)
+    else:
+        if base == "i":
+            base = "\\i" # remove dot on i @@TODO CHECK super vs sub
+        elif base == "j":
+            base = "\\j" # remove dot on i @@TODO CHECK super vs sub
+        return (result + base + "}", index)
 
+
+def clean(text, mapping):
+    """clean takes text and replaces characters so they can be
+    displayed correctly in LaTeX using the mapping.
+    """
+    result = ""
+    index = 0
+    while index < len(text):
+        base = mapping[ord(text[index])]
+        if index + 1 < len(text) and ord(text[index + 1]) >= 768 and ord(text[index + 1]) <= 880: # test if next char is combining
+                (combined, index) = handle_combining(text, index + 1, base, mapping)
+                result += combined
+        else:
+            result += base
+        index += 1
+    return result
 
 
 def convert_to_string(cell):
@@ -333,23 +495,23 @@ class Entry:
         """
         fp.write("\\begin{entry}\n")
         if self.n_uu:
-            fp.write("\\nuu{" + clean_latex_text(self.n_uu) + "}\n")
+            fp.write("\\nuu{" + clean(self.n_uu, text_mapping) + "}\n")
         if self.n_uu_east:
-            fp.write("\\nuueast{" + clean_latex_text(self.n_uu_east) + "}\n")
+            fp.write("\\nuueast{" + clean(self.n_uu_east, text_mapping) + "}\n")
         if self.n_uu_west:
-            fp.write("\\nuuwest{" + clean_latex_text(self.n_uu_west) + "}\n")
+            fp.write("\\nuuwest{" + clean(self.n_uu_west, text_mapping) + "}\n")
         if self.ipa:
-            fp.write("\\ipa{" + clean_latex_ipa(self.ipa) + "}\n")
+            fp.write("\\ipa{" + clean(self.ipa, ipa_mapping) + "}\n")
         if self.ipa_east:
-            fp.write("\\ipaeast{" + clean_latex_ipa(self.ipa_east) + "}\n")
+            fp.write("\\ipaeast{" + clean(self.ipa_east, ipa_mapping) + "}\n")
         if self.ipa_west:
-            fp.write("\\ipawest{" + clean_latex_ipa(self.ipa_west) + "}\n")
+            fp.write("\\ipawest{" + clean(self.ipa_west, ipa_mapping) + "}\n")
         if self.english:
-            fp.write("\\english{" + clean_latex_text(self.english) + "}\n")
+            fp.write("\\english{" + clean(self.english, text_mapping) + "}\n")
         if self.afrikaans:
-            fp.write("\\afrikaans{" + clean_latex_text(self.afrikaans) + "}\n")
+            fp.write("\\afrikaans{" + clean(self.afrikaans, text_mapping) + "}\n")
         if self.khoekhoegowab:
-            fp.write("\\khoekhoegowab{" + clean_latex_text(self.khoekhoegowab) + "}\n")
+            fp.write("\\khoekhoegowab{" + clean(self.khoekhoegowab, text_mapping) + "}\n")
         fp.write("\\end{entry}\n")
         fp.write("\n\n")
 
@@ -544,7 +706,7 @@ class Dictionary:
         output = open(filename, "w")
         write_latex_header(output)
         for i in (self.entries):
-            #for i in sorted (self.entries):
+#        for i in sorted (self.entries):
             i.write_latex(output)
         write_latex_footer(output)
         output.close()
