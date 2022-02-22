@@ -212,11 +212,9 @@ ipa_mapping = {
     771 : "\\~{", #    ord(" ̃") : "\\~{\1}", # CHECK
     778 : "\\r{", #    ord(" ̊") : "\\r{\1}", # CHECK
     804 : "\\\"*{", # ord(" ̤") : "\\\"*{\1}", # CHECK
-    805 : "\\r{", #    ord(" ̊") : "\\r{\1}", # CHECK
+    805 : "\\r*{", #    ord(" ̊") : "\\r{\1}", # CHECK
     809 : "\\s{", #    ord("n̩") : "\\\\s{n}", # CHECK
     827 : "\\textsubsquare{", #    ord(" ̻") : "\\textsubsquare{\1}", # CHECK
-#    ord(" ̤") : "\\\"*{\1}", # CHECK
-#    ord(" ̥") : "\\r*{\1}", # CHECK
 }
 
 text_mapping = {
