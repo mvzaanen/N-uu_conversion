@@ -139,82 +139,82 @@ ipa_mapping = {
     124 : "$|$",
     125 : "\\}",
     126 : "\\~{}",
-    ord("Â") : "\^{A}",
-    ord("â") : "\^{a}",
-    ord("æ") : "\\ae{}",
-    ord("ç") : "\c{c}",
-    ord("é") : "\\'{e}",
-    ord("ê") : "\\^{e}",
-    ord("ë") : '\\"{e}',
-    ord("î") : "\\^{\\i}",
-    ord("ò") : "\\`{o}",
-    ord("ô") : "\\^{o}",
-    ord("õ") : "\\={o}",
-    ord("û") : "\\^{u}",
-    ord("Ā") : "\\={A}",
-    ord("ā") : "\\={a}",
-    ord("ē") : "\\={e}",
-    ord("ī") : "\\={\\i}",
-    ord("ŋ") : "N",
-    ord("ō") : "\\={o}",
-    ord("ū") : "\\={u}",
-    ord("ǀ") : "\\textvertline{}",
-    ord("ǁ") : "\\textdoublevertline{}",
-    ord("ǂ") : "\\textdoublebarpipe{}",
-    ord("ǃ") : "!",
-    ord("ɑ") : "A", 
-    ord("ɔ") : "O",
-    ord("ə") : "@",
-    ord("ɛ") : "E",
-    ord("ɟ") : "\\textbardotlessj{}",
-    ord("ɡ") : "g",
-    ord("ɢ") : "\\;G",
-    ord("ɦ") : "H",
-    ord("ɨ") : "1",
-    ord("ɪ") : "I",
-    ord("ɲ") : "\\textltailn{}",
-    ord("ɵ") : "8",
-    ord("ɾ") : "R",
-    ord("ʁ") : "K",
-    ord("ʉ") : "0",
-    ord("ʊ") : "U",
-    ord("ʎ") : "L",
-    ord("ʏ") : "Y",
-    ord("ʔ") : "P",
-    ord("ʘ") : "\\!o",
-    ord("ʛ") : "!G",
-    ord("ʟ") : "\\;L",
-    ord("ʢ") : "\\textbarrevglotstop{}",
-    ord("ʰ") : "\\super{h}",
-    ord("ʱ") : "\\super{H}",
-    ord("ʲ") : "\\super{j}",
-    ord("ʷ") : "\\super{w}",
-    ord("ˀ") : "\\textraiseglotstop{}",
-    ord("ˤ") : "\\super{Q}",
-    ord("β") : "B",
-    ord("χ") : "X",
-    ord("ᵊ") : "\\super{@}",
-    ord("ᵏ") : "\\super{k}",
-    ord("ᵑ") : "\\super{N}",
-    ord("ᵡ") : "\\super{X}",
-    ord("ᶠ") : "\\super{f}",
-    ord("ᶢ") : "\\super{g}",
-    ord("ṳ") : "\\\"*{u}",
-    ord("’") : "'",
-    ord("…") : "\\ldots{}",
-    ord("ⁱ") : "\\super{i}",
-    ord("ⁿ") : "\\super{n}",
-    700 : "'", #    ord("'") : "\\~{\1}", # CHECK
-    720 : ":",  # normal colon, { for consistency with other high values
-    768 : "\\`{", #    ord(" ̀") : "\\`{\1}", # CHECK
-    769 : "\\'{", #    ord(" ́") : "\\'{\1}", # CHECK
-    770 : "\\^{", #    ord(" ̂") : "\\^{\1}", # CHECK
-    771 : "\\~{", #    ord(" ̃") : "\\~{\1}", # CHECK
-    778 : "\\r{", #    ord(" ̊") : "\\r{\1}", # CHECK
-    804 : "\\\"*{", # ord(" ̤") : "\\\"*{\1}", # CHECK
-    805 : "\\r*{", #    ord(" ̊") : "\\r{\1}", # CHECK
-    809 : "\\s{", #    ord("n̩") : "\\\\s{n}", # CHECK
-    827 : "\\textsubsquare{", #    ord(" ̻") : "\\textsubsquare{\1}", # CHECK
+    194 : "\^{A}", # LATIN CAPITAL LETTER A WITH CIRCUMFLEX
+    226 : "\^{a}", # LATIN SMALL LETTER A WITH CIRCUMFLEX
+    230 : "\\ae{}", # LATIN SMALL LETTER AE
+    231 : "\c{c}", # LATIN SMALL LETTER C WITH CEDILLA
+    233 : "\\'{e}", # LATIN SMALL LETTER E WITH ACUTE
+    234 : "\\^{e}", # LATIN SMALL LETTER E WITH CIRCUMFLEX
+    235 : '\\"{e}', # LATIN SMALL LETTER E WITH DIAERESIS
+    238 : "\\^{\\i}", # LATIN SMALL LETTER I WITH CIRCUMFLEX
+    242 : "\\`{o}", # LATIN SMALL LETTER O WITH GRAVE
+    244 : "\\^{o}", # LATIN SMALL LETTER O WITH CIRCUMFLEX
+    245 : "\\={o}", # LATIN SMALL LETTER O WITH TILDE
+    251 : "\\^{u}", # LATIN SMALL LETTER U WITH CIRCUMFLEX
+    256 : "\\={A}", # LATIN CAPITAL LETTER A WITH MACRON
+    257 : "\\={a}", # LATIN SMALL LETTER A WITH MACRON
+    275 : "\\={e}", # LATIN SMALL LETTER E WITH MACRON
+    299 : "\\={\\i}", # LATIN SMALL LETTER I WITH MACRON
+    331 : "N", # LATIN SMALL LETTER ENG
+    333 : "\\={o}", # LATIN SMALL LETTER O WITH MACRON
+    363 : "\\={u}", # LATIN SMALL LETTER U WITH MACRON
+    448 : "\\textvertline{}", # LATIN LETTER DENTAL CLICK
+    449 : "\\textdoublevertline{}", # LATIN LETTER LATERAL CLICK
+    450 : "\\textdoublebarpipe{}", # LATIN LETTER ALVEOLAR CLICK
+    451 : "!", # LATIN LETTER RETROFLEX CLICK
+    593 : "A", # LATIN SMALL LETTER ALPHA
+    596 : "O", # LATIN SMALL LETTER OPEN O
+    601 : "@", # LATIN SMALL LETTER SCHWA
+    603 : "E", # LATIN SMALL LETTER OPEN E
+    607 : "\\textbardotlessj{}", # LATIN SMALL LETTER DOTLESS J WITH STROKE
+    609 : "g", # LATIN SMALL LETTER SCRIPT G
+    610 : "\\;G", # LATIN LETTER SMALL CAPITAL G
+    614 : "H", # LATIN SMALL LETTER H WITH HOOK
+    616 : "1", # LATIN SMALL LETTER I WITH STROKE
+    618 : "I", # LATIN LETTER SMALL CAPITAL I
+    626 : "\\textltailn{}", # LATIN SMALL LETTER N WITH LEFT HOOK
+    629 : "8", # LATIN SMALL LETTER BARRED O
+    638 : "R", # LATIN SMALL LETTER R WITH FISHHOOK
+    641 : "K", # LATIN LETTER SMALL CAPITAL INVERTED R
+    649 : "0", # LATIN SMALL LETTER U BAR
+    650 : "U", # LATIN SMALL LETTER UPSILON
+    654 : "L", # LATIN SMALL LETTER TURNED Y
+    655 : "Y", # LATIN LETTER SMALL CAPITAL Y
+    660 : "P", # LATIN LETTER GLOTTAL STOP
+    664 : "\\!o", # LATIN LETTER BILABIAL CLICK
+    667 : "!G", # LATIN LETTER SMALL CAPITAL G WITH HOOK
+    671 : "\\;L", # LATIN LETTER SMALL CAPITAL L
+    674 : "\\textbarrevglotstop{}", # LATIN LETTER REVERSED GLOTTAL STOP WITH STROKE
+    688 : "\\super{h}", # MODIFIER LETTER SMALL H
+    689 : "\\super{H}", # MODIFIER LETTER SMALL H WITH HOOK
+    690 : "\\super{j}", # MODIFIER LETTER SMALL J
+    695 : "\\super{w}", # MODIFIER LETTER SMALL W
+    700 : "'", # MODIFIER LETTER APOSTROPHE
+    704 : "\\textraiseglotstop{}", # MODIFIER LETTER GLOTTAL STOP
+    720 : ":",  # MODIFIER LETTER TRIANGULAR COLON
+    740 : "\\super{Q}", # MODIFIER LETTER SMALL REVERSED GLOTTAL STOP
+    768 : "\\`{", # COMBINING GRAVE ACCENT
+    769 : "\\'{", # COMBINING ACUTE ACCENT
+    770 : "\\^{", # COMBINING CIRCUMFLEX ACCENT
+    771 : "\\~{", # COMBINING TILDE
+    778 : "\\r{", # COMBINING RING ABOVE
+    804 : "\\\"*{", # COMBINING DIAERESIS BELOW
+    805 : "\\r{", # COMBINING RING BELOW -> map to COMBINING RING ABOVE
+    809 : "\\s{", # COMBINING VERTICAL LINE BELOW
+    827 : "\\textsubsquare{", # COMBINING SQUARE BELOW
+    946 : "B", # GREEK SMALL LETTER BETA
+    967 : "X", # GREEK SMALL LETTER CHI
+    7498 : "\\super{@}", # MODIFIER LETTER SMALL SCHWA
+    7503 : "\\super{k}", # MODIFIER LETTER SMALL K
+    7505 : "\\super{N}", # MODIFIER LETTER SMALL ENG
+    7521 : "\\super{X}", # MODIFIER LETTER SMALL CHI
+    7584 : "\\super{f}", # MODIFIER LETTER SMALL F
+    7586 : "\\super{g}", # MODIFIER LETTER SMALL SCRIPT G
+    7795 : "\\\"*{u}", # LATIN SMALL LETTER U WITH DIAERESIS BELOW
+    8217 : "'", # RIGHT SINGLE QUOTATION MARK
+    8230 : "\\ldots{}", # HORIZONTAL ELLIPSIS
+    8305 : "\\super{i}", # SUPERSCRIPT LATIN SMALL LETTER I
+    8319 : "\\super{n}", # SUPERSCRIPT LATIN SMALL LETTER N
 }
 
 text_mapping = {
@@ -224,6 +224,7 @@ text_mapping = {
     35 : "\\#",
     36 : "\\$",
     37 : "\\%",
+    38 : "\\&",
     38 : "\\&",
     39 : "'",
     40 : "(",
@@ -313,41 +314,33 @@ text_mapping = {
     124 : "$|$",
     125 : "\\}",
     126 : "\\~{}",
-    ord("&") : "\\&",
-    ord("^") : "\\^{}",
-    ord("~") : "\\~{}",
-    ord("ǃ") : "!",
-    ord("Â") : "\\^{A}",
-    ord("â") : "\\^{a}",
-    ord("î") : "\\^{\\i}",
-    ord("ô") : "\\^{o}",
-    ord("û") : "\\^{u}",
-    ord("ǀ") : "\\textipa{\\textvertline}",
-    ord("ǁ") : "\\textipa{\\textdoublevertline}",
-    ord("ǂ") : "\\textipa{\\textdoublebarpipe}",
-    ord("ɑ") : "\\textipa{A}", 
-    ord("ɟ") : "\\textipa{\\textbardotlessj{}}",
-    ord("ʘ") : "\\textipa{\\!o}",
-    ord("χ") : "\\textipa{X}",
-    ord("’") : "'",  # CHECK
-    ord("\"") : "``",  # CHECK
-    ord("<") : "$<$",
-    ord("â") : "\\^{a}",
-    ord("é") : "\\'{e}",
-    ord("ê") : "\\^{e}",
-    ord("ë") : "\\\"{e}",
-    ord("ô") : "\\^{o}",
-    ord("û") : "\\^{u}",
-    ord("Ā") : "\\={A}",
-    ord("ā") : "\\={a}",
-    ord("ē") : "\\={e}",
-    ord("ī") : "\\={\i}",
-    ord("ō") : "\\={o}",
-    ord("ū") : "\\={u}",
-    700 : "'", #    ord("'") : "\\~{\1}", # CHECK
-    770 : "\\^{", #    ord(" ̂") : "\\^{\1}", # CHECK
-    771 : "\\~{", #    ord(" ̃") : "\\~{\1}", # CHECK
-    8230 : "\ldots", #    ord(" ̃") : "\\~{\1}", # CHECK
+    194 : "\^{A}", # LATIN CAPITAL LETTER A WITH CIRCUMFLEX
+    226 : "\^{a}", # LATIN SMALL LETTER A WITH CIRCUMFLEX
+    233 : "\\'{e}", # LATIN SMALL LETTER E WITH ACUTE
+    234 : "\\^{e}", # LATIN SMALL LETTER E WITH CIRCUMFLEX
+    235 : '\\"{e}', # LATIN SMALL LETTER E WITH DIAERESIS
+    238 : "\\^{\\i}", # LATIN SMALL LETTER I WITH CIRCUMFLEX
+    244 : "\\^{o}", # LATIN SMALL LETTER O WITH CIRCUMFLEX
+    251 : "\\^{u}", # LATIN SMALL LETTER U WITH CIRCUMFLEX
+    256 : "\\={A}", # LATIN CAPITAL LETTER A WITH MACRON
+    257 : "\\={a}", # LATIN SMALL LETTER A WITH MACRON
+    275 : "\\={e}", # LATIN SMALL LETTER E WITH MACRON
+    299 : "\\={\\i}", # LATIN SMALL LETTER I WITH MACRON
+    333 : "\\={o}", # LATIN SMALL LETTER O WITH MACRON
+    363 : "\\={u}", # LATIN SMALL LETTER U WITH MACRON
+    448 : "\\textipa{\\textvertline}", # LATIN LETTER DENTAL CLICK
+    449 : "\\textipa{\\textdoublevertline}", # LATIN LETTER LATERAL CLICK
+    450 : "\\textipa{\\textdoublebarpipe}", # LATIN LETTER ALVEOLAR CLICK
+    451 : "!", # LATIN LETTER RETROFLEX CLICK
+    593 : "\\textipa{A}", # LATIN SMALL LETTER ALPHA
+    607 : "\\textipa{\\textbardotlessj{}}", # LATIN SMALL LETTER DOTLESS J WITH STROKE
+    664 : "\\textipa{\\!o}", # LATIN LETTER BILABIAL CLICK
+    700 : "'", # MODIFIER LETTER APOSTROPHE
+    770 : "\\^{", # COMBINING CIRCUMFLEX ACCENT
+    771 : "\\~{", # COMBINING TILDE
+    967 : "\\textipa{X}", # GREEK SMALL LETTER CHI
+    8217 : "'", # RIGHT SINGLE QUOTATION MARK
+    8230 : "\ldots", # HORIZONTAL ELLIPSIS
 }
 
 
