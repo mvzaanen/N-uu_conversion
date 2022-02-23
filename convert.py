@@ -43,7 +43,8 @@ def write_latex_footer(fp):
     """
     fp.write("\\end{document}\n")
 
-ipa_mapping = {
+
+ipa_latex_mapping = {
     32 : " ",
     33 : "!",
     34 : "\"",
@@ -217,7 +218,7 @@ ipa_mapping = {
     8319 : "\\super{n}", # SUPERSCRIPT LATIN SMALL LETTER N
 }
 
-text_mapping = {
+text_latex_mapping = {
     32 : " ",
     33 : "!",
     34 : "\"",
@@ -401,6 +402,13 @@ def convert_to_string(cell):
         return None
 
 
+def clean_portal(text):
+    """clean_portal makes the text for the portal output clean.
+    Currently only unicode 805 character is replaced with 778.
+    """
+    return text.replace(chr(805), chr(778))
+
+
 class Entry:
     """The Entry class contains information needed to create dictionary entries.  These can be printed in the form useful for the dictionary portal and dictionary app as well as in LaTeX form.
     """
@@ -473,23 +481,23 @@ class Entry:
         fp.write("**\n")
         fp.write("<Project>N|uu dictionary\n")
         if self.n_uu:
-            fp.write("<N|uu>" + self.n_uu + "\n")
+            fp.write("<N|uu>" + clean_portal(self.n_uu) + "\n")
         if self.n_uu_east:
-            fp.write("<N|uu East>" + self.n_uu_east + "\n")
+            fp.write("<N|uu East>" + clean_portal(self.n_uu_east) + "\n")
         if self.n_uu_west:
-            fp.write("<N|uu West>" + self.n_uu_west + "\n")
+            fp.write("<N|uu West>" + clean_portal(self.n_uu_west) + "\n")
         if self.ipa:
-            fp.write("<IPA>" + self.ipa + "\n")
+            fp.write("<IPA>" + clean_portal(self.ipa) + "\n")
         if self.ipa_east:
-            fp.write("<IPA East>" + self.ipa_east + "\n")
+            fp.write("<IPA East>" + clean_portal(self.ipa_east) + "\n")
         if self.ipa_west:
-            fp.write("<IPA West>" + self.ipa_west + "\n")
+            fp.write("<IPA West>" + clean_portal(self.ipa_west) + "\n")
         if self.english:
-            fp.write("<English>" + self.english + "\n")
+            fp.write("<English>" + clean_portal(self.english) + "\n")
         if self.afrikaans:
-            fp.write("<Afrikaans>" + self.afrikaans + "\n")
+            fp.write("<Afrikaans>" + clean_portal(self.afrikaans) + "\n")
         if self.khoekhoegowab:
-            fp.write("<Khoekhoegowab>" + self.khoekhoegowab + "\n")
+            fp.write("<Khoekhoegowab>" + clean_portal(self.khoekhoegowab) + "\n")
         fp.write("**\n")
 
 
@@ -498,23 +506,23 @@ class Entry:
         """
         fp.write("\\begin{entry}\n")
         if self.n_uu:
-            fp.write("\\nuu{" + clean(self.n_uu, text_mapping) + "}\n")
+            fp.write("\\nuu{" + clean(self.n_uu, text_latex_mapping) + "}\n")
         if self.n_uu_east:
-            fp.write("\\nuueast{" + clean(self.n_uu_east, text_mapping) + "}\n")
+            fp.write("\\nuueast{" + clean(self.n_uu_east, text_latex_mapping) + "}\n")
         if self.n_uu_west:
-            fp.write("\\nuuwest{" + clean(self.n_uu_west, text_mapping) + "}\n")
+            fp.write("\\nuuwest{" + clean(self.n_uu_west, text_latex_mapping) + "}\n")
         if self.ipa:
-            fp.write("\\ipa{" + clean(self.ipa, ipa_mapping) + "}\n")
+            fp.write("\\ipa{" + clean(self.ipa, ipa_latex_mapping) + "}\n")
         if self.ipa_east:
-            fp.write("\\ipaeast{" + clean(self.ipa_east, ipa_mapping) + "}\n")
+            fp.write("\\ipaeast{" + clean(self.ipa_east, ipa_latex_mapping) + "}\n")
         if self.ipa_west:
-            fp.write("\\ipawest{" + clean(self.ipa_west, ipa_mapping) + "}\n")
+            fp.write("\\ipawest{" + clean(self.ipa_west, ipa_latex_mapping) + "}\n")
         if self.english:
-            fp.write("\\english{" + clean(self.english, text_mapping) + "}\n")
+            fp.write("\\english{" + clean(self.english, text_latex_mapping) + "}\n")
         if self.afrikaans:
-            fp.write("\\afrikaans{" + clean(self.afrikaans, text_mapping) + "}\n")
+            fp.write("\\afrikaans{" + clean(self.afrikaans, text_latex_mapping) + "}\n")
         if self.khoekhoegowab:
-            fp.write("\\khoekhoegowab{" + clean(self.khoekhoegowab, text_mapping) + "}\n")
+            fp.write("\\khoekhoegowab{" + clean(self.khoekhoegowab, text_latex_mapping) + "}\n")
         fp.write("\\end{entry}\n")
         fp.write("\n\n")
 
