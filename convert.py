@@ -11,6 +11,7 @@ output (in LaTeX format) for the physical dictionary.
 import argparse
 import copy
 from enum import Enum
+from itertools import chain
 import logging
 from pandas_ods_reader import read_ods
 import re
@@ -18,24 +19,28 @@ import re
 def write_latex_header(fp):
     """write_latex_header writes a LaTeX header for the dictionary to fp.
     """
-    fp.write("\\documentclass{article}\n")
-    fp.write("\\usepackage{tipa}\n")
-    fp.write("\\newenvironment{entry}\n")
-    fp.write("{\\noindent\n")
-    fp.write("}\n")
-    fp.write("{\n")
-    fp.write("\\\\[.5em]\n")
-    fp.write("}\n")
-    fp.write("\\newcommand{\\nuu}[1]{\\textbf{#1}}\n")
-    fp.write("\\newcommand{\\nuueast}[1]{\\textbf{#1} (Eastern)}\n")
-    fp.write("\\newcommand{\\nuuwest}[1]{\\textbf{#1} (Western)}\n")
-    fp.write("\\newcommand{\\ipa}[1]{\\textipa{/#1/}}\n")
-    fp.write("\\newcommand{\\ipaeast}[1]{\\textipa{/#1/} (Eastern)}\n")
-    fp.write("\\newcommand{\\ipawest}[1]{\\textipa{/#1/} (Western)}\n")
-    fp.write("\\newcommand{\\english}[1]{#1 (English)}\n")
-    fp.write("\\newcommand{\\afrikaans}[1]{#1 (Afrikaans)}\n")
-    fp.write("\\newcommand{\\khoekhoegowab}[1]{#1 (Khoekhoegowab)}\n")
-    fp.write("\\begin{document}\n")
+    header = """
+\\documentclass{article}
+\\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
+\\geometry{
+paperwidth=170mm,
+paperheight=244mm,
+left=10mm,
+top=10mm,
+includefoot,
+twoside
+}
+\\usepackage[cam,a4,center,pdflatex]{crop}
+\\usepackage{tipa}
+\\newenvironment{entry}
+{\\noindent
+}
+{
+\\\\[.5em]
+}
+\\begin{document}
+"""
+    fp.write(header)
 
 
 def write_latex_footer(fp):
@@ -501,28 +506,164 @@ class Entry:
         fp.write("**\n")
 
 
-    def write_latex(self, fp):
-        """write_latex writes the Entry into latex form to fp.
+    def write_nuu_latex(self, fp):
+        """write_nuu_latex writes the Entry into latex form with N|uu
+        as the lemma to fp.
         """
         fp.write("\\begin{entry}\n")
         if self.n_uu:
-            fp.write("\\nuu{" + clean(self.n_uu, text_latex_mapping) + "}\n")
+            fp.write("\\textbf{" + clean(self.n_uu, text_latex_mapping) + "}\n")
         if self.n_uu_east:
-            fp.write("\\nuueast{" + clean(self.n_uu_east, text_latex_mapping) + "}\n")
+            fp.write("\\textbf{" + clean(self.n_uu_east, text_latex_mapping) + " (Eastern)}\n")
         if self.n_uu_west:
-            fp.write("\\nuuwest{" + clean(self.n_uu_west, text_latex_mapping) + "}\n")
+            fp.write("\\textbf{" + clean(self.n_uu_west, text_latex_mapping) + " (Western)}\n")
         if self.ipa:
-            fp.write("\\ipa{" + clean(self.ipa, ipa_latex_mapping) + "}\n")
+            fp.write("\\textipa{/" + clean(self.ipa, ipa_latex_mapping) + "/}\n")
         if self.ipa_east:
-            fp.write("\\ipaeast{" + clean(self.ipa_east, ipa_latex_mapping) + "}\n")
+            fp.write("\\textipa{/" + clean(self.ipa_east, ipa_latex_mapping) + "/} (Eastern)\n")
         if self.ipa_west:
-            fp.write("\\ipawest{" + clean(self.ipa_west, ipa_latex_mapping) + "}\n")
+            fp.write("\\textipa{/" + clean(self.ipa_west, ipa_latex_mapping) + "/} (Western)\n")
         if self.english:
-            fp.write("\\english{" + clean(self.english, text_latex_mapping) + "}\n")
+            fp.write(clean(self.english, text_latex_mapping) + " (English)\n")
         if self.afrikaans:
-            fp.write("\\afrikaans{" + clean(self.afrikaans, text_latex_mapping) + "}\n")
+            fp.write(clean(self.afrikaans, text_latex_mapping) + " (Afrikaans)\n")
         if self.khoekhoegowab:
-            fp.write("\\khoekhoegowab{" + clean(self.khoekhoegowab, text_latex_mapping) + "}\n")
+            fp.write(clean(self.khoekhoegowab, text_latex_mapping) + " (Khoekhoegowab)\n")
+        fp.write("\\end{entry}\n")
+        fp.write("\n\n")
+
+
+    def write_nuu_east_latex(self, fp):
+        """write_nuu_latex writes the Entry into latex form with N|uu
+        as the lemma to fp.
+        """
+        fp.write("\\begin{entry}\n")
+        if self.n_uu_east:
+            fp.write("\\textbf{" + clean(self.n_uu_east, text_latex_mapping) + " (Eastern)}\n")
+        if self.n_uu:
+            fp.write("\\textbf{" + clean(self.n_uu, text_latex_mapping) + "}\n")
+        if self.n_uu_west:
+            fp.write("\\textbf{" + clean(self.n_uu_west, text_latex_mapping) + " (Western)}\n")
+        if self.ipa:
+            fp.write("\\textipa{/" + clean(self.ipa, ipa_latex_mapping) + "/}\n")
+        if self.ipa_east:
+            fp.write("\\textipa{/" + clean(self.ipa_east, ipa_latex_mapping) + "/} (Eastern)\n")
+        if self.ipa_west:
+            fp.write("\\textipa{/" + clean(self.ipa_west, ipa_latex_mapping) + "/} (Western)\n")
+        if self.english:
+            fp.write(clean(self.english, text_latex_mapping) + " (English)\n")
+        if self.afrikaans:
+            fp.write(clean(self.afrikaans, text_latex_mapping) + " (Afrikaans)\n")
+        if self.khoekhoegowab:
+            fp.write(clean(self.khoekhoegowab, text_latex_mapping) + " (Khoekhoegowab)\n")
+        fp.write("\\end{entry}\n")
+        fp.write("\n\n")
+
+
+    def write_nuu_west_latex(self, fp):
+        """write_nuu_latex writes the Entry into latex form with N|uu
+        as the lemma to fp.
+        """
+        fp.write("\\begin{entry}\n")
+        if self.n_uu_west:
+            fp.write("\\textbf{" + clean(self.n_uu_west, text_latex_mapping) + " (Western)}\n")
+        if self.n_uu:
+            fp.write("\\textbf{" + clean(self.n_uu, text_latex_mapping) + "}\n")
+        if self.n_uu_east:
+            fp.write("\\textbf{" + clean(self.n_uu_east, text_latex_mapping) + " (Eastern)}\n")
+        if self.ipa:
+            fp.write("\\textipa{/" + clean(self.ipa, ipa_latex_mapping) + "/}\n")
+        if self.ipa_east:
+            fp.write("\\textipa{/" + clean(self.ipa_east, ipa_latex_mapping) + "/} (Eastern)\n")
+        if self.ipa_west:
+            fp.write("\\textipa{/" + clean(self.ipa_west, ipa_latex_mapping) + "/} (Western)\n")
+        if self.english:
+            fp.write(clean(self.english, text_latex_mapping) + " (English)\n")
+        if self.afrikaans:
+            fp.write(clean(self.afrikaans, text_latex_mapping) + " (Afrikaans)\n")
+        if self.khoekhoegowab:
+            fp.write(clean(self.khoekhoegowab, text_latex_mapping) + " (Khoekhoegowab)\n")
+        fp.write("\\end{entry}\n")
+        fp.write("\n\n")
+
+
+    def write_khoekhoegowab_latex(self, fp):
+        """write_latex writes the Entry into latex form with
+        khoekhoegowab as lemma to fp.
+        """
+        fp.write("\\begin{entry}\n")
+        if self.khoekhoegowab:
+            fp.write("\\textbf{" + clean(self.khoekhoegowab, text_latex_mapping) + "}\n")
+        if self.n_uu:
+            fp.write(clean(self.n_uu, text_latex_mapping) + " (N$|$uu)\n")
+        if self.n_uu_east:
+            fp.write(clean(self.n_uu_east, text_latex_mapping) + " (Eastern N$|$uu)\n")
+        if self.n_uu_west:
+            fp.write(clean(self.n_uu_west, text_latex_mapping) + " (Western N$|$uu)\n")
+        if self.ipa:
+            fp.write("\\textipa{/" + clean(self.ipa, ipa_latex_mapping) + "/}\n")
+        if self.ipa_east:
+            fp.write("\\textipa{/" + clean(self.ipa_east, ipa_latex_mapping) + "/} (Eastern)\n")
+        if self.ipa_west:
+            fp.write("\\textipa{/" + clean(self.ipa_west, ipa_latex_mapping) + "/} (Western)\n")
+        if self.english:
+            fp.write(clean(self.english, text_latex_mapping) + " (English)\n")
+        if self.afrikaans:
+            fp.write(clean(self.afrikaans, text_latex_mapping) + " (Afrikaans)\n")
+        fp.write("\\end{entry}\n")
+        fp.write("\n\n")
+
+
+    def write_afrikaans_latex(self, fp):
+        """write_latex writes the Entry into latex form with
+        afrikaans as lemma to fp.
+        """
+        fp.write("\\begin{entry}\n")
+        if self.afrikaans:
+            fp.write("\\textbf{" + clean(self.afrikaans, text_latex_mapping) + "}\n")
+        if self.n_uu:
+            fp.write(clean(self.n_uu, text_latex_mapping) + " (N$|$uu)\n")
+        if self.n_uu_east:
+            fp.write(clean(self.n_uu_east, text_latex_mapping) + " (Eastern N$|$uu)\n")
+        if self.n_uu_west:
+            fp.write(clean(self.n_uu_west, text_latex_mapping) + " (Western N$|$uu)\n")
+        if self.ipa:
+            fp.write("\\textipa{/" + clean(self.ipa, ipa_latex_mapping) + "/}\n")
+        if self.ipa_east:
+            fp.write("\\textipa{/" + clean(self.ipa_east, ipa_latex_mapping) + "/} (Eastern)\n")
+        if self.ipa_west:
+            fp.write("\\textipa{/" + clean(self.ipa_west, ipa_latex_mapping) + "/} (Western)\n")
+        if self.khoekhoegowab:
+            fp.write(clean(self.khoekhoegowab, text_latex_mapping) + " (Khoekhoegowab)\n")
+        if self.english:
+            fp.write(clean(self.english, text_latex_mapping) + " (English)\n")
+        fp.write("\\end{entry}\n")
+        fp.write("\n\n")
+
+
+    def write_english_latex(self, fp):
+        """write_latex writes the Entry into latex form with
+        english as lemma to fp.
+        """
+        fp.write("\\begin{entry}\n")
+        if self.english:
+            fp.write("\\textbf{" + clean(self.english, text_latex_mapping) + "}\n")
+        if self.n_uu:
+            fp.write(clean(self.n_uu, text_latex_mapping) + " (N$|$uu)\n")
+        if self.n_uu_east:
+            fp.write(clean(self.n_uu_east, text_latex_mapping) + " (Eastern N$|$uu)\n")
+        if self.n_uu_west:
+            fp.write(clean(self.n_uu_west, text_latex_mapping) + " (Western N$|$uu)\n")
+        if self.ipa:
+            fp.write("\\textipa{/" + clean(self.ipa, ipa_latex_mapping) + "/}\n")
+        if self.ipa_east:
+            fp.write("\\textipa{/" + clean(self.ipa_east, ipa_latex_mapping) + "/} (Eastern)\n")
+        if self.ipa_west:
+            fp.write("\\textipa{/" + clean(self.ipa_west, ipa_latex_mapping) + "/} (Western)\n")
+        if self.khoekhoegowab:
+            fp.write(clean(self.khoekhoegowab, text_latex_mapping) + " (Khoekhoegowab)\n")
+        if self.afrikaans:
+            fp.write(clean(self.afrikaans, text_latex_mapping) + " (Afrikaans)\n")
         fp.write("\\end{entry}\n")
         fp.write("\n\n")
 
@@ -567,9 +708,13 @@ class Dictionary:
         """
         if element != None:
             if element in mapping:
-                logging.warning("Duplicate value on line " + str(line_nr) + " " + name + ": " + element + " also found on line " + str(self.entries[mapping[element]].line_nr))
-            else: # Keep the old value
-                mapping[element] = index
+                lines = []
+                for el in mapping[element]:
+                    lines.append(self.entries[el].line_nr)
+                logging.warning("Duplicate value on line " + str(line_nr) + " " + name + ": " + element + " also found on line(s) " + ", ".join(lines))
+                mapping[element].append(index)
+            else: # Set initial value
+                mapping[element] = [index]
 
 
     def insert(self, n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, khoekhoegowab, line_nr):
@@ -710,15 +855,61 @@ class Dictionary:
         output.close()
 
 
+    def write_nuu_latex(self, fp):
+        """write_nu_latex writes the LaTeX lemmas sorted on
+        N|uu to fp.
+        """
+        # Make use of lemma_type as that stores all N|uu words
+        for lemma in sorted(self.lemma_type):
+            if self.lemma_type[lemma] == self.Entry_type.GLOBAL:
+                for entry in self.n_uu_map[lemma]:
+                    self.entries[entry].write_nuu_latex(fp)
+            if self.lemma_type[lemma] == self.Entry_type.EAST:
+                for entry in self.n_uu_east_map[lemma]:
+                    self.entries[entry].write_nuu_east_latex(fp)
+            if self.lemma_type[lemma] == self.Entry_type.WEST:
+                for entry in self.n_uu_west_map[lemma]:
+                    self.entries[entry].write_nuu_west_latex(fp)
+
+    def write_khoekhoegowab_latex(self, fp):
+        """write_khoekhoegowab_latex writes the LaTeX lemmas sorted on
+        Khoekhoegowab to fp.
+        """
+        for lemma in sorted(self.khoekhoegowab_map):
+            for entry in self.khoekhoegowab_map[lemma]:
+                self.entries[entry].write_khoekhoegowab_latex(fp)
+
+    def write_afrikaans_latex(self, fp):
+        """write_afrikaans_latex writes the LaTeX lemmas sorted on
+        Afrikaans to fp.
+        """
+        for lemma in sorted(self.afrikaans_map):
+            for entry in self.afrikaans_map[lemma]:
+                self.entries[entry].write_afrikaans_latex(fp)
+
+    def write_english_latex(self, fp):
+        """write_english_latex writes the LaTeX lemmas sorted on
+        English to fp.
+        """
+        for lemma in sorted(self.english_map):
+            for entry in self.english_map[lemma]:
+                self.entries[entry].write_english_latex(fp)
+
+
     def write_latex(self, filename):
         """Write_latex creates a LaTeX file containing the dictionary
         information.
         """
         output = open(filename, "w")
         write_latex_header(output)
-        for i in (self.entries):
-#        for i in sorted (self.entries):
-            i.write_latex(output)
+        ### N|uu
+        self.write_nuu_latex(output)
+        ### Khoekhoegowab
+        self.write_khoekhoegowab_latex(output)
+        ### Afrikaans
+        self.write_afrikaans_latex(output)
+        ### English
+        self.write_english_latex(output)
         write_latex_footer(output)
         output.close()
 
