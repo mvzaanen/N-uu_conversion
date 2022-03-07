@@ -64,7 +64,7 @@ def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang):
     fp.write("[\\textipa{" + clean(ipa, ipa_latex_mapping) + "}]\n")
     fp.write("(" + clean(pos, text_latex_mapping) + ");\n")
     for (text, lang) in other_lang:
-        fp.write(clean(text, text_latex_mapping) + " (" + str(lang)+ ") \n")
+        fp.write(clean(text, text_latex_mapping) + " (" + Entry.lang_name(lang)+ ") \n")
     fp.write("\\end{entry}\n")
     fp.write("\n\n")
 
@@ -449,6 +449,16 @@ class Entry:
     # Lang_type indicates the language that should be considered.
     Lang_type = Enum("Lang_type", "NUU NAMA AFRIKAANS ENGLISH")
 
+    def lang_name(lang):
+        if lang == Entry.Lang_type.NUU:
+            return "N|uu"
+        elif lang == Entry.Lang_type.NAMA:
+            return "Nama"
+        elif lang == Entry.Lang_type.AFRIKAANS:
+            return "Afr"
+        elif lang == Entry.Lang_type.ENGLISH:
+            return "Eng"
+
     def __init__(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west,
             english, afrikaans, nama, line_nr):
         """An Entry needs to be introduced using the fields that are required
@@ -562,30 +572,26 @@ class Entry:
                 ipa = self.ipa_west
         elif lang == self.Lang_type.NAMA:
             headword = self.nama
-            ipa = ""
         elif lang == self.Lang_type.AFRIKAANS:
             headword = self.afrikaans
-            ipa = ""
         elif lang == self.Lang_type.ENGLISH:
             headword = self.english
-            ipa = ""
         pos = self.pos
         # build other language text
         other_lang = []
         for l in self.Lang_type:
             if l != lang:
                 if l == self.Lang_type.NUU:
-                    other_lang.append((self.nuu, "N|uu"))
+                    other_lang.append((self.nuu, l))
                 elif l == self.Lang_type.NAMA:
-                    other_lang.append((self.nama, "Nama"))
+                    other_lang.append((self.nama, l))
                 elif l == self.Lang_type.AFRIKAANS:
-                    other_lang.append((self.afrikaans, "Afrikaans"))
+                    other_lang.append((self.afrikaans, l))
                 elif l == self.Lang_type.ENGLISH:
-                    other_lang.append((self.english, "English"))
+                    other_lang.append((self.english, l))
         write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang)
 
-    # Lang_type indicates the language that should be considered.
-    Lang_type = Enum("Lang_type", "NUU NAMA AFRIKAANS ENGLISH")
+
 
 class Dictionary:
     """The Dictionary class stores all information for the dictionary.  It
@@ -600,29 +606,26 @@ class Dictionary:
     # lemma is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
     lemma_type = {}
     # The mappings map a key to the entry (index) in the entries variable.
-    n_uu_map = {}
-    n_uu_east_map = {}
-    n_uu_west_map = {}
-    english_map = {}
-    afrikaans_map = {}
-    nama_map = {}
+    lang_map = {}
+    for lang in Entry.Lang_type:
+        lang_map[lang] = {}
 
 
-    def check_add_map(self, element, mapping, index, name, line_nr):
+    def check_add_map(self, element, lang, index, line_nr):
         """Check_add_map checks whether the element is empty and if not, it adds
         it to the mapping, storing the index.  It uses the name for warnings in
         case elements are already present. line_nr is the number of the current
         line.
         """
         if element != None:
-            if element in mapping:
+            if element in self.lang_map[lang]:
                 lines = []
-                for el in mapping[element]:
+                for el in self.lang_map[lang][element]:
                     lines.append(self.entries[el].line_nr)
-                logging.warning("Duplicate value on line " + str(line_nr) + " " + name + ": " + element + " also found on line(s) " + ", ".join(lines))
-                mapping[element].append(index)
+                logging.warning("Duplicate value on line " + str(line_nr) + " " + Entry.lang_name(lang) + ": " + element + " also found on line(s) " + ", ".join(lines))
+                self.lang_map[lang][element].append(index)
             else: # Set initial value
-                mapping[element] = [index]
+                self.lang_map[lang][element] = [index]
 
 
     def insert(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr):
@@ -637,22 +640,22 @@ class Dictionary:
 
         new_index = len(self.entries) - 1 # Get index which is length - 1
 
-        self.check_add_map(n_uu, self.n_uu_map, new_index, "n_uu", line_nr)
+        self.check_add_map(n_uu, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu != None:
             self.lemma_type[n_uu] = Entry.Entry_type.GLOBAL
 
-        self.check_add_map(n_uu_east, self.n_uu_east_map, new_index, "n_uu_east", line_nr)
+        self.check_add_map(n_uu_east, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu_east != None:
             self.lemma_type[n_uu_east] = Entry.Entry_type.EAST
 
-        self.check_add_map(n_uu_west, self.n_uu_west_map, new_index, "n_uu_west", line_nr)
+        self.check_add_map(n_uu_west, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu_west != None:
             self.lemma_type[n_uu_west] = Entry.Entry_type.WEST
 
 
-        self.check_add_map(english, self.english_map, new_index, "english", line_nr)
-        self.check_add_map(afrikaans, self.afrikaans_map, new_index, "afrikaans", line_nr)
-        self.check_add_map(nama, self.nama_map, new_index, "nama", line_nr)
+        self.check_add_map(english, Entry.Lang_type.ENGLISH, new_index, line_nr)
+        self.check_add_map(afrikaans, Entry.Lang_type.AFRIKAANS, new_index, line_nr)
+        self.check_add_map(nama, Entry.Lang_type.NAMA, new_index, line_nr)
 
 
     def parse(self, text, mode, line_nr):
@@ -761,28 +764,9 @@ class Dictionary:
         # sort_mapping is used to sort the entries
         # value_mapping is the same as sort_mapping, but for N|uu it
         # points to the correct global, east or west mapping.
-        if lang == Entry.Lang_type.NUU:
-            sort_mapping = self.lemma_type
-            value_mapping = None
-        elif lang == Entry.Lang_type.NAMA:
-            sort_mapping = self.nama_map
-            value_mapping = sort_mapping
-        elif lang == Entry.Lang_type.AFRIKAANS:
-            sort_mapping = self.afrikaans_map
-            value_mapping = sort_mapping
-        elif lang == Entry.Lang_type.ENGLISH:
-            sort_mapping = self.english_map
-            value_mapping = sort_mapping
 #        for lemma in sorted(sort_mapping):
-        for lemma in sort_mapping:
-            if lang == Entry.Lang_type.NUU:
-                if sort_mapping[lemma] == Entry.Entry_type.GLOBAL:
-                    value_mapping = self.n_uu_map
-                elif sort_mapping[lemma] == Entry.Entry_type.EAST:
-                    value_mapping = self.n_uu_east_map
-                elif sort_mapping[lemma] == Entry.Entry_type.WEST:
-                    value_mapping = self.n_uu_west_map
-            for entry in value_mapping[lemma]:
+        for lemma in self.lang_map[lang]:
+            for entry in self.lang_map[lang][lemma]:
                 # Use lang, and find sublang for N|uu
                 self.entries[entry].write_latex(fp, lang, self.lemma_type[lemma])
 
