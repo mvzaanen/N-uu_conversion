@@ -62,8 +62,9 @@ def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang):
     if hw_extra:
         fp.write(clean(hw_extra, text_latex_mapping) + "\n")
     fp.write("[\\textipa{" + clean(ipa, ipa_latex_mapping) + "}]\n")
-    fp.write("(" + clean(pos, text_latex_mapping) + ")\n")
-    # other_lang TODO
+    fp.write("(" + clean(pos, text_latex_mapping) + ");\n")
+    for (text, lang) in other_lang:
+        fp.write(clean(text, text_latex_mapping) + " (" + str(lang)+ ") \n")
     fp.write("\\end{entry}\n")
     fp.write("\n\n")
 
@@ -569,7 +570,18 @@ class Entry:
             headword = self.english
             ipa = ""
         pos = self.pos
-        other_lang = ""  # @@ TODO @@
+        # build other language text
+        other_lang = []
+        for l in self.Lang_type:
+            if l != lang:
+                if l == self.Lang_type.NUU:
+                    other_lang.append((self.nuu, "N|uu"))
+                elif l == self.Lang_type.NAMA:
+                    other_lang.append((self.nama, "Nama"))
+                elif l == self.Lang_type.AFRIKAANS:
+                    other_lang.append((self.afrikaans, "Afrikaans"))
+                elif l == self.Lang_type.ENGLISH:
+                    other_lang.append((self.english, "English"))
         write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang)
 
     # Lang_type indicates the language that should be considered.
@@ -728,7 +740,6 @@ class Dictionary:
         # western values in there.
         n_uu, n_uu_east, n_uu_west = self.parse(orthography, "Orthography 1", line_nr)
         ipa, ipa_east, ipa_west = self.parse(ipa, "IPA", line_nr)
-        # TODO POS
         self.insert(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr)
 
 
