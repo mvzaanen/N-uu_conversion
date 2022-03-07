@@ -599,9 +599,6 @@ class Dictionary:
     # Lemma_type is a mapping from a lemma (n_uu word) to the field the
     # lemma is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
     lemma_type = {}
-    # IPA_type is a mapping from an ipa representation to the field the
-    # IPA is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
-    ipa_type = {}
     # The mappings map a key to the entry (index) in the entries variable.
     n_uu_map = {}
     n_uu_east_map = {}
@@ -656,16 +653,8 @@ class Dictionary:
             self.lemma_type[n_uu_west] = Entry.Entry_type.WEST
 
         self.check_add_map(ipa, self.ipa_map, new_index, "ipa", line_nr)
-        if ipa != None:
-            self.ipa_type[ipa] = Entry.Entry_type.GLOBAL
-
         self.check_add_map(ipa_east, self.ipa_east_map, new_index, "ipa_east", line_nr)
-        if ipa_east != None:
-            self.ipa_type[ipa_east] = Entry.Entry_type.EAST
-
         self.check_add_map(ipa_west, self.ipa_west_map, new_index, "ipa_west", line_nr)
-        if ipa_west != None:
-            self.ipa_type[ipa_west] = Entry.Entry_type.WEST
 
         self.check_add_map(english, self.english_map, new_index, "english", line_nr)
         self.check_add_map(afrikaans, self.afrikaans_map, new_index, "afrikaans", line_nr)
@@ -750,7 +739,6 @@ class Dictionary:
         for i in self.entries:
             result += "  " + str(i) + "\n"
         result += "lemma_type: " + str(self.lemma_type) + "\n"
-        result += "ipa_type: " + str(self.ipa_type) + "\n"
         result += "n_uu_map: " + str(self.n_uu_map) + "\n"
         result += "n_uu_east_map: " + str(self.n_uu_east_map) + "\n"
         result += "n_uu_west_map: " + str(self.n_uu_west_map) + "\n"
