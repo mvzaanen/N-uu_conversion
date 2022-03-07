@@ -603,9 +603,6 @@ class Dictionary:
     n_uu_map = {}
     n_uu_east_map = {}
     n_uu_west_map = {}
-    ipa_map = {}
-    ipa_east_map = {}
-    ipa_west_map = {}
     english_map = {}
     afrikaans_map = {}
     nama_map = {}
@@ -652,9 +649,6 @@ class Dictionary:
         if n_uu_west != None:
             self.lemma_type[n_uu_west] = Entry.Entry_type.WEST
 
-        self.check_add_map(ipa, self.ipa_map, new_index, "ipa", line_nr)
-        self.check_add_map(ipa_east, self.ipa_east_map, new_index, "ipa_east", line_nr)
-        self.check_add_map(ipa_west, self.ipa_west_map, new_index, "ipa_west", line_nr)
 
         self.check_add_map(english, self.english_map, new_index, "english", line_nr)
         self.check_add_map(afrikaans, self.afrikaans_map, new_index, "afrikaans", line_nr)
@@ -742,9 +736,6 @@ class Dictionary:
         result += "n_uu_map: " + str(self.n_uu_map) + "\n"
         result += "n_uu_east_map: " + str(self.n_uu_east_map) + "\n"
         result += "n_uu_west_map: " + str(self.n_uu_west_map) + "\n"
-        result += "ipa_map: " + str(self.ipa_map) + "\n"
-        result += "ipa_east_map: " + str(self.ipa_east_map) + "\n"
-        result += "ipa_west_map: " + str(self.ipa_west_map) + "\n"
         result += "english_map: " + str(self.english_map) + "\n"
         result += "afrikaans_map: " + str(self.afrikaans_map) + "\n"
         result += "nama_map: " + str(self.nama_map) + "\n"
