@@ -61,10 +61,11 @@ def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang):
     fp.write("\\textbf{" + clean(headword, text_latex_mapping) + "}\n")
     if hw_extra:
         fp.write(clean(hw_extra, text_latex_mapping) + "\n")
-    fp.write("[\\textipa{" + clean(ipa, ipa_latex_mapping) + "}]\n")
+    if ipa:
+        fp.write("[\\textipa{" + clean(ipa, ipa_latex_mapping) + "}]\n")
     fp.write("(" + clean(pos, text_latex_mapping) + ");\n")
     for (text, lang) in other_lang:
-        fp.write(clean(text, text_latex_mapping) + " (" + Entry.lang_name(lang)+ ") \n")
+        fp.write(clean(text, text_latex_mapping) + " (" + Entry.lang_name_latex(lang)+ ") \n")
     fp.write("\\end{entry}\n")
     fp.write("\n\n")
 
@@ -459,6 +460,16 @@ class Entry:
         elif lang == Entry.Lang_type.ENGLISH:
             return "Eng"
 
+    def lang_name_latex(lang):
+        if lang == Entry.Lang_type.NUU:
+            return "N$|$uu"
+        elif lang == Entry.Lang_type.NAMA:
+            return "Nama"
+        elif lang == Entry.Lang_type.AFRIKAANS:
+            return "Afr"
+        elif lang == Entry.Lang_type.ENGLISH:
+            return "Eng"
+
     def __init__(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west,
             english, afrikaans, nama, line_nr):
         """An Entry needs to be introduced using the fields that are required
@@ -557,6 +568,7 @@ class Entry:
         lang == NUU) as head word.
         """
         hw_extra = ""
+        ipa = None
         # Grab the right headword and other information
         if lang == self.Lang_type.NUU:
             if sublang == self.Entry_type.GLOBAL:
@@ -582,7 +594,7 @@ class Entry:
         for l in self.Lang_type:
             if l != lang:
                 if l == self.Lang_type.NUU:
-                    other_lang.append((self.nuu, l))
+                    other_lang.append((self.n_uu, l))
                 elif l == self.Lang_type.NAMA:
                     other_lang.append((self.nama, l))
                 elif l == self.Lang_type.AFRIKAANS:
@@ -642,14 +654,20 @@ class Dictionary:
 
         self.check_add_map(n_uu, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu != None:
+            if n_uu in self.lemma_type and self.lemma_type[n_uu] != Entry.Entry_type.GLOBAL:
+                logging.error("Found " + str(n_uu) + " as " + str(self.lemma_type[n_uu]) + " and " + str(Entry.Entry_type.GLOBAL))
             self.lemma_type[n_uu] = Entry.Entry_type.GLOBAL
 
         self.check_add_map(n_uu_east, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu_east != None:
+            if n_uu_east in self.lemma_type and self.lemma_type[n_uu_east] != Entry.Entry_type.EAST:
+                logging.error("Found " + str(n_uu_east) + " as " + str(self.lemma_type[n_uu_east]) + " and " + str(Entry.Entry_type.EAST))
             self.lemma_type[n_uu_east] = Entry.Entry_type.EAST
 
         self.check_add_map(n_uu_west, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu_west != None:
+            if n_uu_west in self.lemma_type and self.lemma_type[n_uu_west] != Entry.Entry_type.WEST:
+                logging.error("Found " + str(n_uu_west) + " as " + str(self.lemma_type[n_uu_west]) + " and " + str(Entry.Entry_type.WEST))
             self.lemma_type[n_uu_west] = Entry.Entry_type.WEST
 
 
@@ -761,14 +779,13 @@ class Dictionary:
         """write_lang_latex writes the LaTeX lemmas sorted according
         to mapping to fp.
         """
-        # sort_mapping is used to sort the entries
-        # value_mapping is the same as sort_mapping, but for N|uu it
-        # points to the correct global, east or west mapping.
 #        for lemma in sorted(sort_mapping):
         for lemma in self.lang_map[lang]:
+            sublang = None
+            if lang == Entry.Lang_type.NUU:
+                sublang = self.lemma_type[lemma]
             for entry in self.lang_map[lang][lemma]:
-                # Use lang, and find sublang for N|uu
-                self.entries[entry].write_latex(fp, lang, self.lemma_type[lemma])
+                self.entries[entry].write_latex(fp, lang, sublang)
 
     def write_latex(self, filename):
         """Write_latex creates a LaTeX file containing the dictionary
@@ -779,7 +796,7 @@ class Dictionary:
         ### N|uu
         self.write_lang_latex(output, Entry.Lang_type.NUU)
         ### Nama
-#        self.write_lang_latex(output, Entry.Lang_type.NAMA)
+        self.write_lang_latex(output, Entry.Lang_type.NAMA)
         ### Afrikaans
 #        self.write_lang_latex(output, Entry.Lang_type.AFRIKAANS)
         ### English
