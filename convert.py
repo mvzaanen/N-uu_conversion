@@ -59,9 +59,10 @@ def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang):
 #    print("other_lang=" + str(other_lang))
     fp.write("\\begin{entry}\n")
     fp.write("\\textbf{" + clean(headword, text_latex_mapping) + "}\n")
-#    fp.write(clean(hw_extra, text_latex_mapping) + "\n")
+    if hw_extra:
+        fp.write(clean(hw_extra, text_latex_mapping) + "\n")
     fp.write("[\\textipa{" + clean(ipa, ipa_latex_mapping) + "}]\n")
-#    fp.write(clean(pos, text_latex_mapping) + "\n")
+    fp.write("(" + clean(pos, text_latex_mapping) + ")\n")
     # other_lang TODO
     fp.write("\\end{entry}\n")
     fp.write("\n\n")
@@ -447,7 +448,7 @@ class Entry:
     # Lang_type indicates the language that should be considered.
     Lang_type = Enum("Lang_type", "NUU NAMA AFRIKAANS ENGLISH")
 
-    def __init__(self, n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west,
+    def __init__(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west,
             english, afrikaans, nama, line_nr):
         """An Entry needs to be introduced using the fields that are required
         for output.  Note that a least one of n_uu, n_uu_east, n_uu_west needs
@@ -475,6 +476,8 @@ class Entry:
             key_list.append(n_uu_west + " (west)")
         self.key = ", ".join(key_list)
 
+        self.pos = pos
+
         # Check whether IPA is present.
         if not ipa and not ipa_east and not ipa_west:
             logging.warning("Missing IPA on line " + self.line_nr + " in " + self.key)
@@ -501,7 +504,7 @@ class Entry:
     def __str__(self):
         """__str__ provides printable output.
         """
-        return "Entry(n_uu=" + str(self.n_uu) + ", n_uu_east=" + str(self.n_uu_east) + ", n_uu_west=" + str(self.n_uu_west) + ", ipa=" + str(self.ipa) + ", ipa_east=" + str(self.ipa_east) + ", ipa_west=" + str(self.ipa_west) + ", english=" + str(self.english) + ", afrikaans=" + str(self.afrikaans) + ", Nama=" + str(self.nama) + ", line_nr=" + str(self.line_nr) + ")"
+        return "Entry(n_uu=" + str(self.n_uu) + ", n_uu_east=" + str(self.n_uu_east) + ", n_uu_west=" + str(self.n_uu_west) + ", pos=" + str(self.pos) + ", ipa=" + str(self.ipa) + ", ipa_east=" + str(self.ipa_east) + ", ipa_west=" + str(self.ipa_west) + ", english=" + str(self.english) + ", afrikaans=" + str(self.afrikaans) + ", Nama=" + str(self.nama) + ", line_nr=" + str(self.line_nr) + ")"
 
     def __lt__(self, other):
         """__lt__ implements comparison for (alphabetic) ordering.
@@ -520,6 +523,8 @@ class Entry:
             fp.write("<N|uu East>" + clean_portal(self.n_uu_east) + "\n")
         if self.n_uu_west:
             fp.write("<N|uu West>" + clean_portal(self.n_uu_west) + "\n")
+        if self.pos:
+            fp.write("<POS>" + clean_portal(self.pos) + "\n")
         if self.ipa:
             fp.write("<IPA>" + clean_portal(self.ipa) + "\n")
         if self.ipa_east:
@@ -540,16 +545,19 @@ class Entry:
         while taking the language of lang (with sublang available when
         lang == NUU) as head word.
         """
+        hw_extra = ""
         # Grab the right headword and other information
         if lang == self.Lang_type.NUU:
             if sublang == self.Entry_type.GLOBAL:
                 ipa = self.ipa
                 headword = self.n_uu
             elif sublang == self.Entry_type.EAST:
-                headword = self.n_uu_east + "(Eastern)"
+                headword = self.n_uu_east
+                hw_extra += " (Eastern)"
                 ipa = self.ipa_east
             elif sublang == self.Entry_type.WEST:
-                headword = self.n_uu_west + "(Western)"
+                headword = self.n_uu_west
+                hw_extra += " (Western)"
                 ipa = self.ipa_west
         elif lang == self.Lang_type.NAMA:
             headword = self.nama
@@ -560,8 +568,7 @@ class Entry:
         elif lang == self.Lang_type.ENGLISH:
             headword = self.english
             ipa = ""
-        hw_extra = ""  # @@ TODO @@
-        pos = ""  # @@ TODO @@
+        pos = self.pos
         other_lang = ""  # @@ TODO @@
         write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang)
 
@@ -612,12 +619,12 @@ class Dictionary:
                 mapping[element] = [index]
 
 
-    def insert(self, n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr):
+    def insert(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr):
         """Create and add the entry to the entries list. Len(self.entries)
         provides the index of the new entry.
         """
         # Add information to entries
-        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr))
+        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr))
 
         if (n_uu and n_uu_east) or (n_uu and n_uu_west):
             logging.warning("Both N|uu and N|uu east or west on line " + str(line_nr))
@@ -722,7 +729,7 @@ class Dictionary:
         n_uu, n_uu_east, n_uu_west = self.parse(orthography, "Orthography 1", line_nr)
         ipa, ipa_east, ipa_west = self.parse(ipa, "IPA", line_nr)
         # TODO POS
-        self.insert(n_uu, n_uu_east, n_uu_west, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr)
+        self.insert(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr)
 
 
     def __str__(self):
@@ -785,9 +792,7 @@ class Dictionary:
                     value_mapping = self.n_uu_east_map
                 elif sort_mapping[lemma] == Entry.Entry_type.WEST:
                     value_mapping = self.n_uu_west_map
-            print("lemma=" + str(lemma))
             for entry in value_mapping[lemma]:
-                print("entry=" + str(entry))
                 # Use lang, and find sublang for N|uu
                 self.entries[entry].write_latex(fp, lang, self.lemma_type[lemma])
 
