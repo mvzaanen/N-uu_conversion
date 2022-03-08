@@ -453,13 +453,13 @@ def clean_portal(text):
 class Entry:
     """The Entry class contains information needed to create dictionary entries.  These can be printed in the form useful for the dictionary portal and dictionary app as well as in LaTeX form.
     """
-    # Entry_type indicates where particular information is stored. For
-    # instance, this could indicate n_uu (=GLOBAL), n_uu_east (=EAST), or
+    # Marker_type indicates where particular information is stored. For
+    # instance, this could indicate n_uu (=NONE), n_uu_east (=EAST), or
     # n_uu_west (=WEST).
-    Entry_type = Enum("Entry_type", "GLOBAL EAST WEST")
+    Marker_type = Enum("Marker_type", "NONE EAST WEST")
 
     # Lang_type indicates the language that should be considered.
-    Lang_type = Enum("Lang_type", "NUU NAMA AFRIKAANS ENGLISH")
+    Lang_type = Enum("Lang_type", "NUU NAMA AFRIKAANS AFR_LOC ENGLISH")
 
     def lang_name(lang):
         if lang == Entry.Lang_type.NUU:
@@ -468,6 +468,8 @@ class Entry:
             return "Nama"
         elif lang == Entry.Lang_type.AFRIKAANS:
             return "Afr"
+        elif lang == Entry.Lang_type.AFR_LOC:
+            return "Afr loc"
         elif lang == Entry.Lang_type.ENGLISH:
             return "Eng"
 
@@ -478,11 +480,13 @@ class Entry:
             return "Nama"
         elif lang == Entry.Lang_type.AFRIKAANS:
             return "Afr"
+        elif lang == Entry.Lang_type.AFR_LOC:
+            return "Afr$^{\\mbox{\\footnotesize}loc}$"
         elif lang == Entry.Lang_type.ENGLISH:
             return "Eng"
 
     def __init__(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west,
-            english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr):
+            english, par_english, afrikaans, par_afrikaans, afr_loc, nama, par_nama, line_nr):
         """An Entry needs to be introduced using the fields that are required
         for output.  Note that a least one of n_uu, n_uu_east, n_uu_west needs
         to be filled (otherwise an exception is raised).  If none of ipa,
@@ -527,6 +531,7 @@ class Entry:
         if not afrikaans:
             logging.warning("Missing Afrikaans on line " + self.line_nr + " in " + self.key)
         self.afrikaans = afrikaans
+        self.afr_loc = afr_loc
 
         # Check whether Nama information is present.
         if not nama:
@@ -571,6 +576,8 @@ class Entry:
             fp.write("<English>" + clean_portal(self.english) + "\n")
         if self.afrikaans:
             fp.write("<Afrikaans>" + clean_portal(self.afrikaans) + "\n")
+        if self.afr_loc:
+            fp.write("<Afr_loc>" + clean_portal(self.afr_loc) + "\n")
         if self.nama:
             fp.write("<Nama>" + clean_portal(self.nama) + "\n")
         fp.write("**\n")
@@ -585,14 +592,14 @@ class Entry:
         ipa = None
         # Grab the right headword and other information
         if lang == self.Lang_type.NUU:
-            if sublang == self.Entry_type.GLOBAL:
+            if sublang == self.Marker_type.NONE:
                 ipa = self.ipa
                 headword = self.n_uu
-            elif sublang == self.Entry_type.EAST:
+            elif sublang == self.Marker_type.EAST:
                 headword = self.n_uu_east
                 hw_extra += " (Eastern)"
                 ipa = self.ipa_east
-            elif sublang == self.Entry_type.WEST:
+            elif sublang == self.Marker_type.WEST:
                 headword = self.n_uu_west
                 hw_extra += " (Western)"
                 ipa = self.ipa_west
@@ -607,13 +614,15 @@ class Entry:
         other_lang = []
         for l in self.Lang_type:
             if l != lang:
-                if l == self.Lang_type.NUU:
+                if l == self.Lang_type.NUU: # TODO check on empty
                     other_lang.append((self.n_uu, l))
-                elif l == self.Lang_type.NAMA:
+                elif l == self.Lang_type.NAMA and self.nama:
                     other_lang.append((self.nama, l))
-                elif l == self.Lang_type.AFRIKAANS:
+                elif l == self.Lang_type.AFRIKAANS and self.afrikaans:
                     other_lang.append((self.afrikaans, l))
-                elif l == self.Lang_type.ENGLISH:
+                elif l == self.Lang_type.AFR_LOC and self.afr_loc:
+                    other_lang.append((self.afr_loc, l))
+                elif l == self.Lang_type.ENGLISH and self.english:
                     other_lang.append((self.english, l))
         write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang, self.par_nama, self.par_afrikaans, self.par_english)
 
@@ -654,12 +663,12 @@ class Dictionary:
                 self.lang_map[lang][element] = [index]
 
 
-    def insert(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr):
+    def insert(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, afr_loc, nama, par_nama, line_nr):
         """Create and add the entry to the entries list. Len(self.entries)
         provides the index of the new entry.
         """
         # Add information to entries
-        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr))
+        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, afr_loc, nama, par_nama, line_nr))
 
         if (n_uu and n_uu_east) or (n_uu and n_uu_west):
             logging.warning("Both N|uu and N|uu east or west on line " + str(line_nr))
@@ -668,25 +677,26 @@ class Dictionary:
 
         self.check_add_map(n_uu, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu != None:
-            if n_uu in self.lemma_type and self.lemma_type[n_uu] != Entry.Entry_type.GLOBAL:
-                logging.error("Found " + str(n_uu) + " as " + str(self.lemma_type[n_uu]) + " and " + str(Entry.Entry_type.GLOBAL))
-            self.lemma_type[n_uu] = Entry.Entry_type.GLOBAL
+            if n_uu in self.lemma_type and self.lemma_type[n_uu] != Entry.Marker_type.NONE:
+                logging.error("Found " + str(n_uu) + " as " + str(self.lemma_type[n_uu]) + " and " + str(Entry.Marker_type.NONE))
+            self.lemma_type[n_uu] = Entry.Marker_type.NONE
 
         self.check_add_map(n_uu_east, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu_east != None:
-            if n_uu_east in self.lemma_type and self.lemma_type[n_uu_east] != Entry.Entry_type.EAST:
-                logging.error("Found " + str(n_uu_east) + " as " + str(self.lemma_type[n_uu_east]) + " and " + str(Entry.Entry_type.EAST))
-            self.lemma_type[n_uu_east] = Entry.Entry_type.EAST
+            if n_uu_east in self.lemma_type and self.lemma_type[n_uu_east] != Entry.Marker_type.EAST:
+                logging.error("Found " + str(n_uu_east) + " as " + str(self.lemma_type[n_uu_east]) + " and " + str(Entry.Marker_type.EAST))
+            self.lemma_type[n_uu_east] = Entry.Marker_type.EAST
 
         self.check_add_map(n_uu_west, Entry.Lang_type.NUU, new_index, line_nr)
         if n_uu_west != None:
-            if n_uu_west in self.lemma_type and self.lemma_type[n_uu_west] != Entry.Entry_type.WEST:
-                logging.error("Found " + str(n_uu_west) + " as " + str(self.lemma_type[n_uu_west]) + " and " + str(Entry.Entry_type.WEST))
-            self.lemma_type[n_uu_west] = Entry.Entry_type.WEST
+            if n_uu_west in self.lemma_type and self.lemma_type[n_uu_west] != Entry.Marker_type.WEST:
+                logging.error("Found " + str(n_uu_west) + " as " + str(self.lemma_type[n_uu_west]) + " and " + str(Entry.Marker_type.WEST))
+            self.lemma_type[n_uu_west] = Entry.Marker_type.WEST
 
 
         self.check_add_map(english, Entry.Lang_type.ENGLISH, new_index, line_nr)
         self.check_add_map(afrikaans, Entry.Lang_type.AFRIKAANS, new_index, line_nr)
+        self.check_add_map(afr_loc, Entry.Lang_type.AFR_LOC, new_index, line_nr)
         self.check_add_map(nama, Entry.Lang_type.NAMA, new_index, line_nr)
 
 
@@ -749,7 +759,7 @@ class Dictionary:
         par_english = convert_to_string(line["Parentheticals, English"])
         pos = convert_to_string(line["Part of Speech, English"])
         afrikaans = convert_to_string(line["Afrikaans community feedback HEADWORD"])
-        afrikaans_loc = convert_to_string(line["Afrikaans community feedback Local Variety "])
+        afr_loc = convert_to_string(line["Afrikaans community feedback Local Variety "])
         par_afrikaans = convert_to_string(line["Afrik Parentheticals"])
         nama = convert_to_string(line["Nama Feedback"])
         par_nama = convert_to_string(line["Nama Parentheticals"])
@@ -758,10 +768,7 @@ class Dictionary:
         # western values in there.
         n_uu, n_uu_east, n_uu_west = self.parse(orthography, "Orthography 1", line_nr)
         ipa, ipa_east, ipa_west = self.parse(ipa, "IPA", line_nr)
-        # TODO afrikaans_loc handling
-        if afrikaans_loc:
-            afrikaans += " " + afrikaans_loc
-        self.insert(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr)
+        self.insert(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, afr_loc, nama, par_nama, line_nr)
 
 
     def __str__(self):
