@@ -60,7 +60,6 @@ def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang, par_nama, par
         fp.write("[\\textipa{" + clean(ipa, ipa_latex_mapping) + "}]\n")
     fp.write("(" + clean(pos, text_latex_mapping) + ");\n")
     for (text, lang) in other_lang:
-        #fp.write(clean(text, text_latex_mapping) + " (" + Entry.lang_name_latex(lang)+ ") \n")
         fp.write("\\underbar{" + Entry.lang_name_latex(lang)+ "}: " + clean(text, text_latex_mapping) + ";\n")
     fp.write("\\newline\n")
     if par_nama:
@@ -633,17 +632,18 @@ class Dictionary:
     checks whether all the required information is present.
     """
 
-    # Entries contains the list of dictionary entries (instances of the
-    # Entry class).  The position in this list is used in the mappings
-    # (below).
-    entries = []
-    # Lemma_type is a mapping from a lemma (n_uu word) to the field the
-    # lemma is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
-    lemma_type = {}
-    # The mappings map a key to the entry (index) in the entries variable.
-    lang_map = {}
-    for lang in Entry.Lang_type:
-        lang_map[lang] = {}
+    def __init__(self):
+        # Entries contains the list of dictionary entries (instances of the
+        # Entry class).  The position in this list is used in the mappings
+        # (below).
+        self.entries = []
+        # Lemma_type is a mapping from a lemma (n_uu word) to the field the
+        # lemma is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
+        self.lemma_type = {}
+        # The mappings map a key to the entry (index) in the entries variable.
+        self.lang_map = {}
+        for lang in Entry.Lang_type:
+            self.lang_map[lang] = {}
 
 
     def check_add_map(self, element, lang, index, line_nr):
