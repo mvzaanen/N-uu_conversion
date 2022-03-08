@@ -49,14 +49,9 @@ def write_latex_footer(fp):
     fp.write("\\end{document}\n")
 
 
-def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang):
+def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang, par_nama, par_afrikaans, par_english):
     """write_latex_data writes the information into LaTeX form to fp.
     """
-#    print("headword=" + str(headword))
-#    print("hw_extra=" + str(hw_extra))
-#    print("ipa=" + str(ipa))
-#    print("pos=" + str(pos))
-#    print("other_lang=" + str(other_lang))
     fp.write("\\begin{entry}\n")
     fp.write("\\textbf{" + clean(headword, text_latex_mapping) + "}\n")
     if hw_extra:
@@ -65,7 +60,15 @@ def write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang):
         fp.write("[\\textipa{" + clean(ipa, ipa_latex_mapping) + "}]\n")
     fp.write("(" + clean(pos, text_latex_mapping) + ");\n")
     for (text, lang) in other_lang:
-        fp.write(clean(text, text_latex_mapping) + " (" + Entry.lang_name_latex(lang)+ ") \n")
+        #fp.write(clean(text, text_latex_mapping) + " (" + Entry.lang_name_latex(lang)+ ") \n")
+        fp.write("\\underbar{" + Entry.lang_name_latex(lang)+ "}: " + clean(text, text_latex_mapping) + ";\n")
+    fp.write("\\newline\n")
+    if par_nama:
+        fp.write("\\small{\\underbar{Nama}: " + clean(par_nama, text_latex_mapping) + "}\\newline\n")
+    if par_afrikaans:
+        fp.write("\\small{\\underbar{Afr}: " + clean(par_afrikaans, text_latex_mapping) + "}\\newline\n")
+    if par_english:
+        fp.write("\\small{\\underbar{Eng}: " + clean(par_english, text_latex_mapping) + "}\\newline\n")
     fp.write("\\end{entry}\n")
     fp.write("\n\n")
 
@@ -306,7 +309,7 @@ text_latex_mapping = {
     89 : "Y",
     90 : "Z",
     91 : "[",
-    92 : "\\",
+    92 : "\\\\",
     93 : "]",
     94 : "\\^{}",
     95 : "\\_",
@@ -341,17 +344,22 @@ text_latex_mapping = {
     124 : "$|$",
     125 : "\\}",
     126 : "\\~{}",
+    160 : "~", # NON-BREAKING SPACE
+    176 : "$^{\circ}$", # DEGREE SIGN
     194 : "\^{A}", # LATIN CAPITAL LETTER A WITH CIRCUMFLEX
+    206 : "\^{I}", # LATIN CAPITAL LETTER I WITH CIRCUMFLEX
     226 : "\^{a}", # LATIN SMALL LETTER A WITH CIRCUMFLEX
     233 : "\\'{e}", # LATIN SMALL LETTER E WITH ACUTE
     234 : "\\^{e}", # LATIN SMALL LETTER E WITH CIRCUMFLEX
     235 : '\\"{e}', # LATIN SMALL LETTER E WITH DIAERESIS
     238 : "\\^{\\i}", # LATIN SMALL LETTER I WITH CIRCUMFLEX
+    239 : '\\"{\\i}', # LATIN SMALL LETTER I WITH DIAERESIS
     244 : "\\^{o}", # LATIN SMALL LETTER O WITH CIRCUMFLEX
     251 : "\\^{u}", # LATIN SMALL LETTER U WITH CIRCUMFLEX
     256 : "\\={A}", # LATIN CAPITAL LETTER A WITH MACRON
     257 : "\\={a}", # LATIN SMALL LETTER A WITH MACRON
     275 : "\\={e}", # LATIN SMALL LETTER E WITH MACRON
+    298 : "\\={I}", # LATIN CAPITAL LETTER I WITH MACRON
     299 : "\\={\\i}", # LATIN SMALL LETTER I WITH MACRON
     333 : "\\={o}", # LATIN SMALL LETTER O WITH MACRON
     363 : "\\={u}", # LATIN SMALL LETTER U WITH MACRON
@@ -362,6 +370,7 @@ text_latex_mapping = {
     593 : "\\textipa{A}", # LATIN SMALL LETTER ALPHA
     607 : "\\textipa{\\textbardotlessj{}}", # LATIN SMALL LETTER DOTLESS J WITH STROKE
     664 : "\\textipa{\\!o}", # LATIN LETTER BILABIAL CLICK
+    690 : "$^{j}$", # Modifier Letter Small J 
     700 : "'", # MODIFIER LETTER APOSTROPHE
     770 : "\\^{", # COMBINING CIRCUMFLEX ACCENT
     771 : "\\~{", # COMBINING TILDE
@@ -471,7 +480,7 @@ class Entry:
             return "Eng"
 
     def __init__(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west,
-            english, afrikaans, nama, line_nr):
+            english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr):
         """An Entry needs to be introduced using the fields that are required
         for output.  Note that a least one of n_uu, n_uu_east, n_uu_west needs
         to be filled (otherwise an exception is raised).  If none of ipa,
@@ -521,6 +530,9 @@ class Entry:
         if not nama:
             logging.warning("Missing Nama on line " + self.line_nr + " in " + self.key)
         self.nama = nama
+        self.par_english = par_english
+        self.par_afrikaans = par_afrikaans
+        self.par_nama = par_nama
 
 
     def __str__(self):
@@ -601,7 +613,7 @@ class Entry:
                     other_lang.append((self.afrikaans, l))
                 elif l == self.Lang_type.ENGLISH:
                     other_lang.append((self.english, l))
-        write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang)
+        write_latex_data(fp, headword, hw_extra, ipa, pos, other_lang, self.par_nama, self.par_afrikaans, self.par_english)
 
 
 
@@ -640,12 +652,12 @@ class Dictionary:
                 self.lang_map[lang][element] = [index]
 
 
-    def insert(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr):
+    def insert(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr):
         """Create and add the entry to the entries list. Len(self.entries)
         provides the index of the new entry.
         """
         # Add information to entries
-        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr))
+        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr))
 
         if (n_uu and n_uu_east) or (n_uu and n_uu_west):
             logging.warning("Both N|uu and N|uu east or west on line " + str(line_nr))
@@ -697,7 +709,7 @@ class Dictionary:
         # is the word and the second element of the tuple is the label within
         # the brackets.  Note that this ignores everything following the last
         # pair of brackets in case of a match.
-        elements = re.findall(r',?([^\(\)]*)\(([^\(\)]*)\)', text)
+        elements = re.findall(r';?([^\(\)]*)\(([^\(\)]*)\)', text)
         # TODO: handle text after last bracket
         if elements:
             for i in elements:
@@ -744,7 +756,10 @@ class Dictionary:
         # western values in there.
         n_uu, n_uu_east, n_uu_west = self.parse(orthography, "Orthography 1", line_nr)
         ipa, ipa_east, ipa_west = self.parse(ipa, "IPA", line_nr)
-        self.insert(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, afrikaans, nama, line_nr)
+        # TODO afrikaans_loc handling
+        if afrikaans_loc:
+            afrikaans += " " + afrikaans_loc
+        self.insert(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, nama, par_nama, line_nr)
 
 
     def __str__(self):
@@ -798,9 +813,9 @@ class Dictionary:
         ### Nama
         self.write_lang_latex(output, Entry.Lang_type.NAMA)
         ### Afrikaans
-#        self.write_lang_latex(output, Entry.Lang_type.AFRIKAANS)
+        self.write_lang_latex(output, Entry.Lang_type.AFRIKAANS)
         ### English
-#        self.write_lang_latex(output, Entry.Lang_type.ENGLISH)
+        self.write_lang_latex(output, Entry.Lang_type.ENGLISH)
         write_latex_footer(output)
         output.close()
 
