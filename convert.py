@@ -376,6 +376,8 @@ text_latex_mapping = {
     771 : "\\~{", # COMBINING TILDE
     967 : "\\textipa{X}", # GREEK SMALL LETTER CHI
     8217 : "'", # RIGHT SINGLE QUOTATION MARK
+    8220 : "``", # LEFT DOUBLE QUOTATION MARK
+    8221 : "''", # RIGHT DOUBLE QUOTATION MARK
     8230 : "\\ldots", # HORIZONTAL ELLIPSIS
     9789 : "}", # FIRST QUARTER MOON
     9790 : "\\textit{", # LAST QUARTER MOON
