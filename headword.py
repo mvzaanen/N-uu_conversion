@@ -6,6 +6,9 @@ represents one particular word that can function as a headword in the
 dictionary.
 """
 
+from enum import Enum
+
+
 class Headword:
     """The Headword class contains information that is needed to
     represent a headword. A headword consists of a word (text) and
@@ -53,10 +56,10 @@ class Headword:
         """write_portal writes the headword to fp so the information can
         be incorporated in the dictionary portal.
         """
-        fp.write(clean_portal(self.word) + " (" + marker2text(self.marker) + ")"
+        fp.write(clean_portal(self.word) + " (" + marker2text(self.marker) + ")")
 
     def write_latex(self, fp):
         """write_latex writes the headword to fp so the information can
         be incorporated in a LaTeX file.
         """
-        fp.write(clean_latex_text(self.word)) + " (" + marker2latex(self.marker) + ")"
+        fp.write(clean_latex_text(self.word) + " (" + marker2latex(self.marker) + ")")
