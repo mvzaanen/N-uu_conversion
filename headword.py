@@ -15,26 +15,30 @@ class Headword:
     possibly a label (Marker_type) indicating for instance dialect
     information (which is not the same as langauge).
     """
+
     # Marker_type indicates where particular information is stored. For
     # instance, this could indicate n_uu (=NONE), n_uu_east (=EAST), or
     # n_uu_west (=WEST).
-    Marker_type = Enum("Marker_type", "NONE EAST WEST")
+    Marker_type = Enum("Marker_type", "EAST WEST NONE")
+
 
     def marker2text(marker):
-        if marker == Marker_type.NONE:
+        if marker == Headword.Marker_type.NONE:
             return ""
-        elif marker == Marker_type.EAST:
-            return "east"
-        elif marker == Marker_type.WEST:
-            return "west"
+        elif marker == Headword.Marker_type.EAST:
+            return "Eastern"
+        elif marker == Headword.Marker_type.WEST:
+            return "Western"
+
 
     def marker2latex(marker):
-        if marker == Marker_type.NONE:
+        if marker == Headword.Marker_type.NONE:
             return ""
-        elif marker == Marker_type.EAST:
-            return "east"
-        elif marker == Marker_type.WEST:
-            return "west"
+        elif marker == Headword.Marker_type.EAST:
+            return "Eastern"
+        elif marker == Headword.Marker_type.WEST:
+            return "Western"
+
 
     def __init__(self, word, marker):
         """A Headword contains a word and a dialect marker.
@@ -42,24 +46,21 @@ class Headword:
         self.word = word
         self.marker = marker
 
+
     def __str__(self):
         """__str__ provides printable output.
         """
-        return str(self.word) + " (" + marker2text(self.marker) + ")"
+        result = str(self.word)
+        if self.marker != Headword.Marker_type.NONE:
+            result += " (" + Headword.marker2text(self.marker) + ")"
+        return result
 
-    def __lt__(self, other):
-        """__lt__ implements comparison for (alphabetic) ordering.
+    def get_word(self):
+        """get_word provides word of the headword.
         """
-        return self.word < other.word
+        return self.word
 
-    def write_portal(self, fp):
-        """write_portal writes the headword to fp so the information can
-        be incorporated in the dictionary portal.
+    def get_marker(self):
+        """get_marker provides marker of the headword.
         """
-        fp.write(clean_portal(self.word) + " (" + marker2text(self.marker) + ")")
-
-    def write_latex(self, fp):
-        """write_latex writes the headword to fp so the information can
-        be incorporated in a LaTeX file.
-        """
-        fp.write(clean_latex_text(self.word) + " (" + marker2latex(self.marker) + ")")
+        return self.marker

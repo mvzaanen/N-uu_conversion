@@ -6,6 +6,7 @@ represents an entry in the dictionary (spreadsheet).
 """
 
 from enum import Enum
+from headword import Headword
 import logging
 from output_helper import clean_portal, clean_latex_text, clean_latex_ipa
 
@@ -64,12 +65,12 @@ class Entry:
         """
         result = "Entry("
         for lang in self.headwords:
-            result += lang2text(lang) + "("
-            result += ", ".join(self.headwords[lang])
+            result += Entry.lang2text(lang) + "("
+            result += ", ".join(map(str, self.headwords[lang]))
             result += ") "
         result += "POS(" + self.pos + ") "
         for lang in self.parentheticals:
-            result += lang2text(lang) + "("
+            result += Entry.lang2text(lang) + "("
             result += self.parentheticals[lang]
             result += ") "
         result += self.line_nr
@@ -83,34 +84,38 @@ class Entry:
         fp.write("**\n")
         fp.write("<Project>N|uu dictionary\n")
         for lang in self.headwords:
-            fp.write("<" + lang2text(lang) + ">")
-            fp.write(", ".join(self.headwords[lang]))
+            fp.write("<" + Entry.lang2text(lang) + ">")
+            fp.write(", ".join(map(str, self.headwords[lang])))
             fp.write("\n")
         fp.write("<POS>" + self.pos + "\n")
         for lang in self.parentheticals:
-            fp.write("<" + lang2text(lang) + " par>")
+            fp.write("<" + Entry.lang2text(lang) + " par>")
             fp.write(self.parentheticals[lang])
             fp.write("\n")
         fp.write("**\n")
 
 
     def write_latex(self, fp, headword, lang):
-        """write_latex writes the entry to fp so the information can
-        be incorporated in a LaTeX file.  The lemma will be based on
-        the headword which is found in the language lang.  This will
-        not work if lang is Lang_type.IPA as that requires special
-        treatment.
+        """write_latex writes the entry to fp so the
+        information can be incorporated in a LaTeX file.  The lemma
+        will be based on the headword which is found in the language
+        lang.  This will not work if lang is Lang_type.IPA as that
+        requires special treatment.
         """
         fp.write("\\begin{entry}\n")
-        fp.write("\\textbf{" + clean_latex_text(headword) + "}\n")
+        fp.write("\\textbf{" + clean_latex_text(headword.get_word()) + "}")
+        marker = Headword.marker2text(headword.get_marker())
+        if marker != "":
+            fp.write(" (" + marker + ")")
 
         # write the other headwords
-        fp.write(", ".join(map(clean_latex_text, [hw for hw in self.headwords[lang] if hw != headword])) + "\n")
+        fp.write(", " + ", ".join(map(clean_latex_text, map(str, [hw for hw in self.headwords[lang] if hw != headword]))) + "\n")
 
         if lang == Entry.Lang_type.NUU: # write IPA after N|uu
-            fp.write("[\\textipa{")
-            fp.write(", ".join(map(clean_latex_ipa, self.headwords[l])))
-            fp.write("}]\n")
+            if Entry.Lang_type.IPA in self.headwords: # do we have IPA?
+                fp.write("[\\textipa{")
+                fp.write(", ".join(map(clean_latex_ipa, map(str, self.headwords[Entry.Lang_type.IPA]))))
+                fp.write("}]\n")
 
         # write POS
         fp.write("(" + clean_latex_text(self.pos) + ");\n")
@@ -118,13 +123,13 @@ class Entry:
         # do the other languages
         for l in Entry.Lang_type:
             if l != lang and l != Entry.Lang_type.IPA and l in self.headwords:
-                fp.write("\\underbar{" + Entry.lang_name_latex(l)+ "}: ")
-                fp.write(", ".join(map(clean_latex_text, [self.headwords[l]])) + "\n")
+                fp.write("\\underbar{" + Entry.lang2latex(l)+ "}: ")
+                fp.write(", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + "\n")
         fp.write("\\newline\n")
         # do the other parentheticals
         for l in Entry.Lang_type:
             if l != lang and l != Entry.Lang_type.IPA and l in self.parentheticals:
-                fp.write("\\underbar{" + Entry.lang_name_latex(l)+ "}: ")
-                fp.write(", ".join(map(clean_latex_text, [self.parentheticals[l]])) + "\n")
+                fp.write("\\underbar{" + Entry.lang2latex(l)+ "}: ")
+                fp.write(clean_latex_text(self.parentheticals[l]) + "\n")
         fp.write("\\end{entry}\n")
         fp.write("\n\n")

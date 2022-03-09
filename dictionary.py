@@ -5,6 +5,7 @@ This file contains the implementation of the Dictionary class.
 """
 
 from entry import Entry
+from headword import Headword
 import logging
 import re
 
@@ -20,19 +21,14 @@ def convert_to_string(cell):
         return None
 
 
-def parse(text, mode, line_nr):
+def parse(text):
     """parse analyses the text for (Western) and (Eastern) variants and
     splits the text into potentially three values.  These values are
-    returned as a tuple in the following order:
-    there is no eastern or western variant, western variant, eastern
-    variant. Mode indicates the type of cell that was investigated
-    (as a string).
+    returned as a list of Headwords.
     """
+    result = []
     if not text:
-        return text, None, None
-    east = None
-    west = None
-    general = None
+        return result
     # This regular expression searches for an optional comma (which we are
     # not interested in as it can only start at the beginning of the string
     # or directly after a pair of matching brackets).  We then find
@@ -41,29 +37,20 @@ def parse(text, mode, line_nr):
     # is the word and the second element of the tuple is the label within
     # the brackets.  Note that this ignores everything following the last
     # pair of brackets in case of a match.
-    elements = re.findall(r';?([^\(\)]*)\(([^\(\)]*)\)', text)
-    # TODO: handle text after last bracket
-    if elements:
-        for i in elements:
-            if i[1].casefold() == "Eastern".casefold(): # handle case
-                if east:
-                    logging.error("Duplicate Eastern info in " + mode + " on line " + str(line_nr))
-                east = i[0].strip()
-            elif i[1].casefold() == "Western".casefold(): # handle case
-                if west:
-                    logging.error("Duplicate Western info in " + mode + " on line " + str(line_nr))
-                west = i[0].strip()
-            else:
-                logging.warning("Found unknown bracket info: " + str(i[1]) + " in " + mode + " on line " + str(line_nr))
-                general = text
-        # Find the rest of the text after the last closing bracket
-        rest = re.search(r'\)([^\)]*)$', text)
-        if rest and rest[1] != "":
-            logging.warning("Found additional text in " + mode + " after brackets: " + str(rest[1]) + " on line " + str(line_nr))
-
-    else:
-        general = text
-    return general, east, west
+    hws = text.split(';')
+    for hw in hws:
+        marker = Headword.Marker_type.NONE
+        text = hw
+        east = re.match("(.*)\(Eastern\)", hw, re.I)
+        west = re.match("(.*)\(Western\)", hw, re.I)
+        if east:
+            text = east[1].strip()
+            marker = Headword.Marker_type.EAST
+        elif west:
+            text = west[1].strip()
+            marker = Headword.Marker_type.WEST
+        result.append(Headword(text, marker))
+    return result
 
 
 def write_latex_header(fp):
@@ -113,10 +100,7 @@ class Dictionary:
         # Entry class).  The position in this list is used in the mappings
         # (below).
         self.entries = []
-        # Lemma_type is a mapping from a lemma (n_uu word) to the field the
-        # lemma is found in (general=n_uu, east=n_uu_east, west=n_uu_west).
-        self.lemma_type = {}
-        # The mappings map a key to the entry (index) in the entries variable.
+        # The mappings map a headword to the entry (index) in the entries variable.
         self.lang_map = {}
         for lang in Entry.Lang_type:
             self.lang_map[lang] = {}
@@ -133,47 +117,49 @@ class Dictionary:
                 lines = []
                 for el in self.lang_map[lang][element]:
                     lines.append(self.entries[el].line_nr)
-                logging.warning("Duplicate value on line " + str(line_nr) + " " + Entry.lang_name(lang) + ": " + element + " also found on line(s) " + ", ".join(lines))
+                logging.warning("Duplicate value on line " + str(line_nr) + " " + Entry.lang2text(lang) + ": " + str(element) + " also found on line(s) " + ", ".join(lines))
                 self.lang_map[lang][element].append(index)
             else: # Set initial value
                 self.lang_map[lang][element] = [index]
 
 
-    def insert(self, n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, afr_loc, nama, par_nama, line_nr):
+    def insert(self, n_uu, pos, ipa, nama, afrikaans, afr_loc, english, par_nama, par_afrikaans, par_english, line_nr):
         """Create and add the entry to the entries list. Len(self.entries)
-        provides the index of the new entry.
+        provides the index of the new entry.  Parse the language
+        and IPA fields.
         """
+        # Create headwords
+        hws = {}
+        hws[Entry.Lang_type.NUU] = parse(n_uu)
+        if ipa:
+            hws[Entry.Lang_type.IPA] = parse(ipa)
+        if nama:
+            hws[Entry.Lang_type.NAMA] = parse(nama)
+        if afrikaans:
+            hws[Entry.Lang_type.AFRIKAANS] = parse(afrikaans)
+        if afr_loc:
+            hws[Entry.Lang_type.AFR_LOC] = parse(afr_loc)
+        if english:
+            hws[Entry.Lang_type.ENGLISH] = parse(english)
+        parentheticals = {}
+        if par_nama:
+            parentheticals[Entry.Lang_type.NAMA] = par_nama
+        if par_afrikaans:
+            parentheticals[Entry.Lang_type.AFRIKAANS] = par_afrikaans
+        if par_english:
+            parentheticals[Entry.Lang_type.ENGLISH] = par_english
+
+        if not pos:  
+            pos = ""
+            logging.warning("Missing POS on line " + str(line_nr))
         # Add information to entries
-        self.entries.append(Entry(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, afr_loc, nama, par_nama, line_nr))
-
-        if (n_uu and n_uu_east) or (n_uu and n_uu_west):
-            logging.warning("Both N|uu and N|uu east or west on line " + str(line_nr))
-
+        self.entries.append(Entry(hws, pos, parentheticals, line_nr))
         new_index = len(self.entries) - 1 # Get index which is length - 1
 
-        self.check_add_map(n_uu, Entry.Lang_type.NUU, new_index, line_nr)
-        if n_uu != None:
-            if n_uu in self.lemma_type and self.lemma_type[n_uu] != Entry.Marker_type.NONE:
-                logging.error("Found " + str(n_uu) + " as " + str(self.lemma_type[n_uu]) + " and " + str(Entry.Marker_type.NONE))
-            self.lemma_type[n_uu] = Entry.Marker_type.NONE
-
-        self.check_add_map(n_uu_east, Entry.Lang_type.NUU, new_index, line_nr)
-        if n_uu_east != None:
-            if n_uu_east in self.lemma_type and self.lemma_type[n_uu_east] != Entry.Marker_type.EAST:
-                logging.error("Found " + str(n_uu_east) + " as " + str(self.lemma_type[n_uu_east]) + " and " + str(Entry.Marker_type.EAST))
-            self.lemma_type[n_uu_east] = Entry.Marker_type.EAST
-
-        self.check_add_map(n_uu_west, Entry.Lang_type.NUU, new_index, line_nr)
-        if n_uu_west != None:
-            if n_uu_west in self.lemma_type and self.lemma_type[n_uu_west] != Entry.Marker_type.WEST:
-                logging.error("Found " + str(n_uu_west) + " as " + str(self.lemma_type[n_uu_west]) + " and " + str(Entry.Marker_type.WEST))
-            self.lemma_type[n_uu_west] = Entry.Marker_type.WEST
-
-
-        self.check_add_map(english, Entry.Lang_type.ENGLISH, new_index, line_nr)
-        self.check_add_map(afrikaans, Entry.Lang_type.AFRIKAANS, new_index, line_nr)
-        self.check_add_map(afr_loc, Entry.Lang_type.AFR_LOC, new_index, line_nr)
-        self.check_add_map(nama, Entry.Lang_type.NAMA, new_index, line_nr)
+        # Insert information in self.lang_map
+        for lang in hws:
+            for hw in hws[lang]:
+                self.check_add_map(hw, lang, new_index, line_nr)
 
 
     def insert_line(self, line, line_nr):
@@ -183,22 +169,18 @@ class Dictionary:
         """
         # Convert to string (if needed) and remove any whitespace at beginning
         # or end.
-        orthography = convert_to_string(line["Orthography 1"])
+        n_uu = convert_to_string(line["Orthography 1"])
         ipa = convert_to_string(line["IPA"])
-        english = convert_to_string(line["English"])
-        par_english = convert_to_string(line["Parentheticals, English"])
         pos = convert_to_string(line["Part of Speech, English"])
+        nama = convert_to_string(line["Nama Feedback"])
+        par_nama = convert_to_string(line["Nama Parentheticals"])
         afrikaans = convert_to_string(line["Afrikaans community feedback HEADWORD"])
         afr_loc = convert_to_string(line["Afrikaans community feedback Local Variety "])
         par_afrikaans = convert_to_string(line["Afrik Parentheticals"])
-        nama = convert_to_string(line["Nama Feedback"])
-        par_nama = convert_to_string(line["Nama Parentheticals"])
+        english = convert_to_string(line["English"])
+        par_english = convert_to_string(line["Parentheticals, English"])
 
-        # Parse the N|uu and IPA entries as there may be eastern and
-        # western values in there.
-        n_uu, n_uu_east, n_uu_west = parse(orthography, "Orthography 1", line_nr)
-        ipa, ipa_east, ipa_west = parse(ipa, "IPA", line_nr)
-        self.insert(n_uu, n_uu_east, n_uu_west, pos, ipa, ipa_east, ipa_west, english, par_english, afrikaans, par_afrikaans, afr_loc, nama, par_nama, line_nr)
+        self.insert(n_uu, pos, ipa, nama, afrikaans, afr_loc, english, par_nama, par_afrikaans, par_english, line_nr)
 
 
     def __str__(self):
@@ -207,13 +189,6 @@ class Dictionary:
         result = "Dictionary(Entries:\n"
         for i in self.entries:
             result += "  " + str(i) + "\n"
-        result += "lemma_type: " + str(self.lemma_type) + "\n"
-        result += "n_uu_map: " + str(self.n_uu_map) + "\n"
-        result += "n_uu_east_map: " + str(self.n_uu_east_map) + "\n"
-        result += "n_uu_west_map: " + str(self.n_uu_west_map) + "\n"
-        result += "english_map: " + str(self.english_map) + "\n"
-        result += "afrikaans_map: " + str(self.afrikaans_map) + "\n"
-        result += "nama_map: " + str(self.nama_map) + "\n"
         result += ")"
         return result
 
@@ -234,12 +209,10 @@ class Dictionary:
         to mapping to fp.
         """
 #        for lemma in sorted(sort_mapping):
-        for lemma in self.lang_map[lang]:
-            sublang = None
-            if lang == Entry.Lang_type.NUU:
-                sublang = self.lemma_type[lemma]
-            for entry in self.lang_map[lang][lemma]:
-                self.entries[entry].write_latex(fp, lang, sublang)
+        for element in self.lang_map[lang]:
+            for index in self.lang_map[lang][element]:
+                self.entries[index].write_latex(fp, element, lang)
+
 
     def write_latex(self, filename):
         """Write_latex creates a LaTeX file containing the dictionary
