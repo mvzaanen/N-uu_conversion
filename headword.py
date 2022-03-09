@@ -25,6 +25,14 @@ class Headword:
         elif marker == Marker_type.WEST:
             return "west"
 
+    def marker2latex(marker):
+        if marker == Marker_type.NONE:
+            return ""
+        elif marker == Marker_type.EAST:
+            return "east"
+        elif marker == Marker_type.WEST:
+            return "west"
+
     def __init__(self, word, marker):
         """A Headword contains a word and a dialect marker.
         """
@@ -51,4 +59,4 @@ class Headword:
         """write_latex writes the headword to fp so the information can
         be incorporated in a LaTeX file.
         """
-        fp.write(clean_portal(clean_latex_text(self.word)) + " (" + marker2text(self.marker) + ")"
+        fp.write(clean_latex_text(self.word)) + " (" + marker2latex(self.marker) + ")"
