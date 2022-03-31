@@ -342,6 +342,8 @@ def handle_combining(text, index, base, mapping):
     combining_char = ord(text[index])
     accent_above = is_above(combining_char)
     result = mapping[combining_char] # grab combining character
+    if base == "i" and (combining_char == 778 or combining_char == 805):
+        result = "\\textsubring{"
     if index + 1 < len(text) and ord(text[index + 1]) >= 768 and ord(text[index + 1]) <= 880: # test if next char is combining
         (combined, index, rest_above) = handle_combining(text, index + 1, base, mapping)
         accent_above = accent_above or rest_above  # either this character has an accent above or one of the following chars
