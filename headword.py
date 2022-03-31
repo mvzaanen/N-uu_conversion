@@ -61,10 +61,12 @@ class Headword:
         """
         return self.word < other.word
 
+
     def get_word(self):
         """get_word provides word of the headword.
         """
         return self.word
+
 
     def get_marker(self):
         """get_marker provides marker of the headword.
