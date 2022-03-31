@@ -181,6 +181,7 @@ ipa_latex_mapping = {
 }
 
 text_latex_mapping = {
+    10 : " ", # line feed, mapping to space
     32 : " ",
     33 : "!",
     34 : "\"",
@@ -293,7 +294,9 @@ text_latex_mapping = {
     275 : "\\={e}", # LATIN SMALL LETTER E WITH MACRON
     298 : "\\={I}", # LATIN CAPITAL LETTER I WITH MACRON
     299 : "\\={\\i}", # LATIN SMALL LETTER I WITH MACRON
+    332 : "\\={O}", # LATIN CAPITAL LETTER O WITH MACRON
     333 : "\\={o}", # LATIN SMALL LETTER O WITH MACRON
+    362 : "\\={U}", # LATIN CAPITAL LETTER U WITH MACRON
     363 : "\\={u}", # LATIN SMALL LETTER U WITH MACRON
     448 : "\\textipa{\\textvertline}", # LATIN LETTER DENTAL CLICK
     449 : "\\textipa{\\textdoublevertline}", # LATIN LETTER LATERAL CLICK
@@ -302,11 +305,16 @@ text_latex_mapping = {
     593 : "\\textipa{A}", # LATIN SMALL LETTER ALPHA
     607 : "\\textipa{\\textbardotlessj{}}", # LATIN SMALL LETTER DOTLESS J WITH STROKE
     664 : "\\textipa{\\!o}", # LATIN LETTER BILABIAL CLICK
+    688 : "\\super{h}", # MODIFIER LETTER SMALL H
     690 : "$^{j}$", # Modifier Letter Small J 
     700 : "'", # MODIFIER LETTER APOSTROPHE
+    769 : "\\'{", # COMBINING ACUTE ACCENT
     770 : "\\^{", # COMBINING CIRCUMFLEX ACCENT
     771 : "\\~{", # COMBINING TILDE
+    778 : "\\r{", # COMBINING RING ABOVE
+    783 : "\\textdoublegrave{", # COMBINING DOUBLE GRAVE ACCENT
     967 : "\\textipa{X}", # GREEK SMALL LETTER CHI
+    7505 : "\\super{N}", # MODIFIER LETTER SMALL ENG
     8217 : "'", # RIGHT SINGLE QUOTATION MARK
     8220 : "``", # LEFT DOUBLE QUOTATION MARK
     8221 : "''", # RIGHT DOUBLE QUOTATION MARK
@@ -365,16 +373,17 @@ def clean_latex(text, mapping):
     return result
 
 
-
 def clean_latex_text(text):
     """clean_latex_text converts the text to LaTeX text.
     """
     return clean_latex(text, text_latex_mapping)
 
+
 def clean_latex_ipa(ipa):
     """clean_latex_ipa converts the IPA to LaTeX text.
     """
     return clean_latex(ipa, ipa_latex_mapping)
+
 
 def clean_portal(text):
     """clean_portal makes the text for the portal output clean.

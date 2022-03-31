@@ -43,9 +43,46 @@ class Entry:
         elif lang == Entry.Lang_type.AFRIKAANS:
             return "Afr"
         elif lang == Entry.Lang_type.AFR_LOC:
-            return "Afr$^{\\mbox{\\footnotesize}loc}$"
+            return "Afr$^{\\mbox{\\footnotesize{ons}}}$"
         elif lang == Entry.Lang_type.ENGLISH:
             return "Eng"
+
+
+    pos2text_map = {
+            "" : "MISSING",
+            "noun" : "T1",
+            "verb" : "T2",
+            "particle" : "T3",
+            "noun phrase" : "T4",
+            "noun, proper, personal" : "T5",
+            "noun, proper, place" : "T6",
+            "verb phrase" : "T7",
+            "pronoun" : "T8",
+            "phrase, greeting" : "T9",
+            "interrogative" : "T10",
+            "adverb" : "T11",
+            "phrase" : "T12",
+            "noun, proper" : "T13",
+            "numeral" : "T14",
+            "noun, proper, place, river" : "T15",
+            "interjection" : "T16",
+            "adjective" : "T17",
+            "quantifier" : "T18",
+            "particle, adjective" : "T19",
+            "verb (transitive)" : "T20",
+            "verb, particle" : "T21",
+            "verb, noun" : "T22",
+            "verb, interjection" : "T23",
+            "verb, adjective" : "T24",
+            "noun; verb" : "T25",
+            "noun, verb" : "T26",
+            "noun, particle" : "T27",
+            }
+
+
+    def pos2text(pos):
+        return Entry.pos2text_map[pos]
+
 
     def __init__(self, headwords, pos, parentheticals, line_nr):
         """An Entry needs to be introduced using the fields that are required
@@ -109,7 +146,10 @@ class Entry:
             fp.write(" (" + marker + ")")
 
         # write the other headwords
-        fp.write(", " + ", ".join(map(clean_latex_text, map(str, [hw for hw in self.headwords[lang] if hw != headword]))) + "\n")
+        if len(self.headwords[lang]) != 1:
+            fp.write(", " + ", ".join(map(clean_latex_text, map(str, [hw for hw in self.headwords[lang] if hw != headword]))) + "\n")
+        else:
+            fp.write(" ")
 
         if lang == Entry.Lang_type.NUU: # write IPA after N|uu
             if Entry.Lang_type.IPA in self.headwords: # do we have IPA?
@@ -118,7 +158,7 @@ class Entry:
                 fp.write("}]\n")
 
         # write POS
-        fp.write("(" + clean_latex_text(self.pos) + ");\n")
+        fp.write("(" + clean_latex_text(Entry.pos2text(self.pos)) + ");\n")
 
         # do the other languages
         for l in Entry.Lang_type:
@@ -130,6 +170,6 @@ class Entry:
         for l in Entry.Lang_type:
             if l != lang and l != Entry.Lang_type.IPA and l in self.parentheticals:
                 fp.write("\\underbar{" + Entry.lang2latex(l)+ "}: ")
-                fp.write(clean_latex_text(self.parentheticals[l]) + "\n")
+                fp.write(clean_latex_text(self.parentheticals[l]) + "\\\\\n")
         fp.write("\\end{entry}\n")
         fp.write("\n\n")

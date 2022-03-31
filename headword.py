@@ -55,6 +55,12 @@ class Headword:
             result += " (" + Headword.marker2text(self.marker) + ")"
         return result
 
+
+    def __lt__(self, other):
+        """__lt__ compares alphabetically on headword.
+        """
+        return self.word < other.word
+
     def get_word(self):
         """get_word provides word of the headword.
         """

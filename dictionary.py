@@ -208,8 +208,7 @@ class Dictionary:
         """write_lang_latex writes the LaTeX lemmas sorted according
         to mapping to fp.
         """
-#        for lemma in sorted(sort_mapping):
-        for element in self.lang_map[lang]:
+        for element in sorted(self.lang_map[lang]):
             for index in self.lang_map[lang][element]:
                 self.entries[index].write_latex(fp, element, lang)
 
