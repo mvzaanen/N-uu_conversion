@@ -40,7 +40,7 @@ def parse(text):
     hws = text.split(';')
     for hw in hws:
         marker = Headword.Marker_type.NONE
-        text = hw
+        text = hw.strip()
         east = re.match("(.*)\(Eastern\)", hw, re.I)
         west = re.match("(.*)\(Western\)", hw, re.I)
         if east:
