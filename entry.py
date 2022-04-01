@@ -122,12 +122,12 @@ class Entry:
         fp.write("<Project>N|uu dictionary\n")
         for lang in self.headwords:
             fp.write("<" + Entry.lang2text(lang) + ">")
-            fp.write(", ".join(map(str, self.headwords[lang])))
+            fp.write("\n<synonym>".join(map(clean_portal, self.headwords[lang])))
             fp.write("\n")
-        fp.write("<POS>" + self.pos + "\n")
+        fp.write("<POS>" + Entry.pos2text(self.pos) + "\n")
         for lang in self.parentheticals:
             fp.write("<" + Entry.lang2text(lang) + " par>")
-            fp.write(self.parentheticals[lang])
+            fp.write(clean_portal(self.parentheticals[lang]))
             fp.write("\n")
         fp.write("**\n")
 
@@ -160,7 +160,7 @@ class Entry:
                 try:
                     ipa_ordered.insert(0, ipa_ordered.pop(index))
                 except IndexError:
-                    print(str(self))
+                    logging.error("Different number of N|uu and IPA entries on line " + str(self.line_nr))
                 fp.write("[\\textipa{")
                 fp.write(", ".join(map(clean_latex_ipa, map(str, ipa_ordered))))
                 fp.write("}]\n")

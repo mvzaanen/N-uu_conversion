@@ -389,6 +389,8 @@ def clean_latex_ipa(ipa):
 
 def clean_portal(text):
     """clean_portal makes the text for the portal output clean.
-    Currently only unicode 805 character is replaced with 778.
+    Currently only unicode 805 character is replaced with 778 and the
+    half moons 9789 and 9790 are removed.
     """
-    return text.replace(chr(805), chr(778))
+
+    return str(text).replace(chr(805), chr(778)).replace(chr(9789), '').replace(chr(9790), '')
