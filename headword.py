@@ -59,7 +59,28 @@ class Headword:
     def __lt__(self, other):
         """__lt__ compares alphabetically on headword.
         """
-        return self.word < other.word
+        sword = self.word.lower()
+        oword = other.word.lower()
+        if sword == oword:
+            return False
+        i_self = 0
+        l_self = len(sword)
+        i_other = 0
+        l_other = len(oword)
+        # skip - if present
+        while i_self != l_self and sword[i_self] == "-":
+            i_self += 1
+        # skip - if present
+        while i_other != l_other and oword[i_other] == "-":
+            i_other += 1
+        # find point where the words are different
+        while i_self != l_self and i_other != l_other and sword[i_self] == oword[i_other]:
+            i_self += 1
+            i_other += 1
+        if i_self == l_self or i_other == l_other:
+            return l_self < l_other
+        else:
+            return sword[i_self] < oword[i_other]
 
 
     def get_word(self):
