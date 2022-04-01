@@ -139,6 +139,8 @@ class Entry:
         lang.  This will not work if lang is Lang_type.IPA as that
         requires special treatment.
         """
+        # find index of headword in Entry
+        index = self.headwords[lang].index(headword)
         fp.write("\\begin{entry}\n")
         fp.write("\\textbf{" + clean_latex_text(headword.get_word()) + "}")
         marker = Headword.marker2text(headword.get_marker())
@@ -153,8 +155,14 @@ class Entry:
 
         if lang == Entry.Lang_type.NUU: # write IPA after N|uu
             if Entry.Lang_type.IPA in self.headwords: # do we have IPA?
+                # reorder based on index of headword
+                ipa_ordered = self.headwords[Entry.Lang_type.IPA][:]
+                try:
+                    ipa_ordered.insert(0, ipa_ordered.pop(index))
+                except IndexError:
+                    print(str(self))
                 fp.write("[\\textipa{")
-                fp.write(", ".join(map(clean_latex_ipa, map(str, self.headwords[Entry.Lang_type.IPA]))))
+                fp.write(", ".join(map(clean_latex_ipa, map(str, ipa_ordered))))
                 fp.write("}]\n")
 
         # write POS
