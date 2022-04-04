@@ -68,10 +68,10 @@ class Headword:
         i_other = 0
         l_other = len(oword)
         # skip - if present
-        while i_self != l_self and sword[i_self] == "-":
+        while i_self != l_self and sword[i_self] in "-" + chr(9790):
             i_self += 1
         # skip - if present
-        while i_other != l_other and oword[i_other] == "-":
+        while i_other != l_other and oword[i_other] in "-" + chr(9790):
             i_other += 1
         # find point where the words are different
         while i_self != l_self and i_other != l_other and sword[i_self] == oword[i_other]:

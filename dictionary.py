@@ -56,25 +56,24 @@ def parse(text):
 def write_latex_header(fp):
     """write_latex_header writes a LaTeX header for the dictionary to fp.
     """
-    header = """
-\\documentclass{article}
+    header = """\\documentclass[8pt,twocolumn]{extarticle}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
 \\geometry{
-paperwidth=170mm,
-paperheight=244mm,
-left=10mm,
-top=10mm,
-includefoot,
-twoside
+    a4paper,
+    paperwidth=170mm,
+    paperheight=244mm,
+    left=10mm,
+    top=10mm,
+    bottom=10mm,
+    includefoot,
+    twoside
 }
 \\usepackage[cam,a4,center,pdflatex]{crop}
 \\usepackage{tipa}
 \\newenvironment{entry}
-{\\noindent
-}
-{
-\\\\[.5em]
-}
+{\\noindent}
+{}
+\setlength{\parsep}{0pt}
 \\begin{document}
 """
     fp.write(header)
