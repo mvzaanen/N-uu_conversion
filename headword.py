@@ -67,12 +67,24 @@ class Headword:
         l_self = len(sword)
         i_other = 0
         l_other = len(oword)
-        # skip - if present
-        while i_self != l_self and sword[i_self] in "-" + chr(9790):
-            i_self += 1
-        # skip - if present
-        while i_other != l_other and oword[i_other] in "-" + chr(9790):
-            i_other += 1
+        # skip -, `, space, and LAST QUARTER MOON (9790) if present
+        while i_self < l_self and sword[i_self] in "- `'(" + chr(9790):
+            # skip "'n"
+            if i_self + 3 < l_self and sword[i_self:i_self + 3] == "'n ": #
+                i_self += 3
+            elif i_self + 5 < l_self and sword[i_self:i_self + 5] == "(be) ": #
+                i_self += 5
+            else:
+                i_self += 1
+        # skip -, `, space, and LAST QUARTER MOON (9790) if present
+        while i_other < l_other and oword[i_other] in "- `'(" + chr(9790):
+            # skip "'n"
+            if i_other + 3 < l_other and oword[i_other:i_other + 3] == "'n ": #
+                i_other += 3
+            elif i_other + 5 < l_other and oword[i_other:i_other + 5] == "(be) ": #
+                i_other += 5
+            else:
+                i_other += 1
         # find point where the words are different
         while i_self != l_self and i_other != l_other and sword[i_self] == oword[i_other]:
             i_self += 1
