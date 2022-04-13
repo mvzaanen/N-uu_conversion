@@ -315,6 +315,7 @@ text_latex_mapping = {
     783 : "\\textdoublegrave{", # COMBINING DOUBLE GRAVE ACCENT
     967 : "\\textipa{X}", # GREEK SMALL LETTER CHI
     7505 : "\\super{N}", # MODIFIER LETTER SMALL ENG
+    8211 : "--", # EN DASH
     8217 : "'", # RIGHT SINGLE QUOTATION MARK
     8220 : "``", # LEFT DOUBLE QUOTATION MARK
     8221 : "''", # RIGHT DOUBLE QUOTATION MARK
