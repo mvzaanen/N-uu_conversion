@@ -58,6 +58,7 @@ def write_latex_header(fp):
     """
     header = """\\documentclass[8pt,twocolumn]{extarticle}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
+\\setlength{\columnseprule}{0.4pt}
 \\geometry{
     a4paper,
     paperwidth=170mm,
