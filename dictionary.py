@@ -56,7 +56,7 @@ def parse(text):
 def write_latex_header(fp):
     """write_latex_header writes a LaTeX header for the dictionary to fp.
     """
-    header = """\\documentclass[8pt,twocolumn]{extarticle}
+    header = """\\documentclass[10pt,twocolumn]{extarticle}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
