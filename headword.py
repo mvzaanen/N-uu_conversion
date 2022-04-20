@@ -58,17 +58,25 @@ class Headword:
     def skip_words(word, i):
         # skip -, `, space, and LAST QUARTER MOON (9790) if present
         l = len(word)
+        if i + 7 < l and word[i:i + 7] == "iemand ": #
+            return (i + 7, True)
         if i + 7 < l and word[i:i + 7] == "(wees) ": #
             return (i + 7, True)
-        if i + 5 < l and word[i:i + 5] == "wees ": #
-            return (i + 5, True)
         if i + 5 < l and word[i:i + 5] == "(be) ": #
+            return (i + 5, True)
+        if i + 5 < l and word[i:i + 5] == "iets ": #
+            return (i + 5, True)
+        if i + 5 < l and word[i:i + 5] == "wees ": #
             return (i + 5, True)
         if i + 4 < l and word[i:i + 4] == "the ": #
             return (i + 4, True)
+        if i + 3 < l and word[i:i + 3] == "be ": #
+            return (i + 3, True)
         if i + 3 < l and word[i:i + 3] == "'n ": #
             return (i + 3, True)
-        if i + 3 < l and word[i:i + 3] == "be ": #
+        if i + 3 < l and word[i:i + 3] == "om ": #
+            return (i + 3, True)
+        if i + 3 < l and word[i:i + 3] == "te ": #
             return (i + 3, True)
         if i < l and word[i] in "- `'(" + chr(9790):
             return (i + 1, True)
