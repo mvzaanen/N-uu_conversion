@@ -73,7 +73,7 @@ def write_latex_header(fp):
 \\usepackage{tipa}
 \\newenvironment{entry}
 {\\noindent}
-{}
+{\\vspace{-1em}}
 \setlength{\parsep}{0pt}
 \\begin{document}
 """
