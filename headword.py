@@ -55,6 +55,24 @@ class Headword:
             result += " (" + Headword.marker2text(self.marker) + ")"
         return result
 
+    def skip_words(word, i):
+        # skip -, `, space, and LAST QUARTER MOON (9790) if present
+        l = len(word)
+        if i + 7 < l and word[i:i + 7] == "(wees) ": #
+            return (i + 7, True)
+        if i + 5 < l and word[i:i + 5] == "wees ": #
+            return (i + 5, True)
+        if i + 5 < l and word[i:i + 5] == "(be) ": #
+            return (i + 5, True)
+        if i + 4 < l and word[i:i + 4] == "the ": #
+            return (i + 4, True)
+        if i + 3 < l and word[i:i + 3] == "'n ": #
+            return (i + 3, True)
+        if i + 3 < l and word[i:i + 3] == "be ": #
+            return (i + 3, True)
+        if i < l and word[i] in "- `'(" + chr(9790):
+            return (i + 1, True)
+        return (i, False)
 
     def __lt__(self, other):
         """__lt__ compares alphabetically on headword.
@@ -67,24 +85,14 @@ class Headword:
         l_self = len(sword)
         i_other = 0
         l_other = len(oword)
-        # skip -, `, space, and LAST QUARTER MOON (9790) if present
-        while i_self < l_self and sword[i_self] in "- `'(" + chr(9790):
-            # skip "'n"
-            if i_self + 3 < l_self and sword[i_self:i_self + 3] == "'n ": #
-                i_self += 3
-            elif i_self + 5 < l_self and sword[i_self:i_self + 5] == "(be) ": #
-                i_self += 5
-            else:
-                i_self += 1
-        # skip -, `, space, and LAST QUARTER MOON (9790) if present
-        while i_other < l_other and oword[i_other] in "- `'(" + chr(9790):
-            # skip "'n"
-            if i_other + 3 < l_other and oword[i_other:i_other + 3] == "'n ": #
-                i_other += 3
-            elif i_other + 5 < l_other and oword[i_other:i_other + 5] == "(be) ": #
-                i_other += 5
-            else:
-                i_other += 1
+        # Find words need to be skipped for sword
+        (i_self, skipped) = Headword.skip_words(sword, i_self)
+        while skipped:
+            (i_self, skipped) = Headword.skip_words(sword, i_self)
+        # Find words need to be skipped for oword
+        (i_other, skipped) = Headword.skip_words(oword, i_other)
+        while skipped:
+            (i_other, skipped) = Headword.skip_words(oword, i_other)
         # find point where the words are different
         while i_self != l_self and i_other != l_other and sword[i_self] == oword[i_other]:
             i_self += 1
