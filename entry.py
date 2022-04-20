@@ -153,6 +153,9 @@ class Entry:
         else:
             fp.write(" ")
 
+        # write POS
+        fp.write("(" + clean_latex_text(Entry.pos2text(self.pos)) + ");\n")
+
         if lang == Entry.Lang_type.NUU: # write IPA after N|uu
             if Entry.Lang_type.IPA in self.headwords: # do we have IPA?
                 # reorder based on index of headword
@@ -164,9 +167,6 @@ class Entry:
                 fp.write("[\\textipa{")
                 fp.write(", ".join(map(clean_latex_ipa, map(str, ipa_ordered))))
                 fp.write("}]\n")
-
-        # write POS
-        fp.write("(" + clean_latex_text(Entry.pos2text(self.pos)) + ");\n")
 
         # do the other languages
         for l in Entry.Lang_type:
