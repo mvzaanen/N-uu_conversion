@@ -61,15 +61,13 @@ def write_latex_header(fp):
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
     a4paper,
-    paperwidth=170mm,
-    paperheight=244mm,
     left=10mm,
+    right=23mm,
     top=10mm,
     bottom=10mm,
     includefoot,
     twoside
 }
-\\usepackage[cam,a4,center,pdflatex]{crop}
 \\usepackage{tipa}
 \\newenvironment{entry}
 {\\noindent}
