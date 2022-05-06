@@ -154,7 +154,7 @@ class Entry:
             fp.write(" ")
 
         # write POS
-        fp.write("(" + clean_latex_text(Entry.pos2text(self.pos)) + ");\n")
+        fp.write("(" + clean_latex_text(Entry.pos2text(self.pos)) + ")\n")
 
         if lang == Entry.Lang_type.NUU: # write IPA after N|uu
             if Entry.Lang_type.IPA in self.headwords: # do we have IPA?
