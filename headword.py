@@ -7,6 +7,7 @@ dictionary.
 """
 
 from enum import Enum
+from output_helper import is_above
 
 
 class Headword:
@@ -82,6 +83,66 @@ class Headword:
             return (i + 1, True)
         return (i, False)
 
+    sort_order = {
+            "a" : 1,
+            "ā" : 1,
+            "â" : 1,
+            "b" : 2,
+            "c" : 3,
+            "d" : 4,
+            "e" : 5,
+            "ē" : 5,
+            "ê" : 5,
+            "ë" : 5,
+            "f" : 6,
+            "g" : 7,
+            "h" : 8,
+            "i" : 9,
+            "ī" : 9,
+            "î" : 9,
+            "j" : 10,
+            "k" : 11,
+            "l" : 12,
+            "m" : 13,
+            "n" : 14,
+            "o" : 15,
+            "ō" : 15,
+            "ô" : 15,
+            "p" : 16,
+            "q" : 17,
+            "r" : 18,
+            "s" : 19,
+            "t" : 20,
+            "u" : 21,
+            "ū" : 21,
+            "û" : 21,
+            "v" : 22,
+            "w" : 23,
+            "x" : 24,
+            "y" : 25,
+            "z" : 26,
+            "ʘ" : 27,
+            "ǀ" : 28,
+            "ǁ" : 29,
+            "ǃ" : 30,
+            "!" : 30,
+            "ǂ" : 31,
+            " " : ord(" ") + 99,
+            "," : ord(",") + 99,
+            "-" : ord("-") + 99,
+            "\'" : ord("\'") + 99,
+            "`" : ord("`") + 99,
+            "(" : ord("(") + 99,
+            ")" : ord(")") + 99,
+            "?" : ord("?") + 99,
+            "/" : ord("/") + 99,
+            "ʼ" : ord("ʼ") + 99,
+            "’" : ord("’") + 99,
+            "☾" : ord("☾") + 99,
+            }
+
+
+
     def __lt__(self, other):
         """__lt__ compares alphabetically on headword.
         """
@@ -102,13 +163,30 @@ class Headword:
         while skipped:
             (i_other, skipped) = Headword.skip_words(oword, i_other)
         # find point where the words are different
-        while i_self != l_self and i_other != l_other and sword[i_self] == oword[i_other]:
-            i_self += 1
-            i_other += 1
-        if i_self == l_self or i_other == l_other:
-            return l_self < l_other
-        else:
-            return sword[i_self] < oword[i_other]
+        different = False
+        while not different:
+            if i_self != l_self and i_other != l_other and sword[i_self] == oword[i_other]:
+                i_self += 1
+                i_other += 1
+            elif i_self != l_self and sword[i_self] not in Headword.sort_order:
+                if not is_above(ord(sword[i_self])):
+                    print("skipping i_self " + str(i_self) + " in " + str(sword))
+                i_self += 1
+            elif i_other != l_other and oword[i_other] not in Headword.sort_order:
+                if not is_above(ord(oword[i_other])):
+                    print("skipping i_other " + str(i_other) + " in " + str(oword))
+                i_other += 1
+            else:
+                different = True
+        try:
+            if i_self == l_self or i_other == l_other:
+                return l_self < l_other
+            else:
+                return Headword.sort_order[sword[i_self]] < Headword.sort_order[oword[i_other]]
+        except:
+            print(sword)
+            print(oword)
+
 
 
     def get_word(self):
