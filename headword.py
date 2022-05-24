@@ -136,8 +136,6 @@ class Headword:
             ")" : ord(")") + 99,
             "?" : ord("?") + 99,
             "/" : ord("/") + 99,
-            "ʼ" : ord("ʼ") + 99,
-            "’" : ord("’") + 99,
             "☾" : ord("☾") + 99,
             }
 
@@ -163,8 +161,8 @@ class Headword:
         while skipped:
             (i_other, skipped) = Headword.skip_words(oword, i_other)
         # find point where the words are different
-        different = False
-        while not different:
+        same = True
+        while same:
             if i_self != l_self and i_other != l_other and sword[i_self] == oword[i_other]:
                 i_self += 1
                 i_other += 1
@@ -177,7 +175,7 @@ class Headword:
                     print("skipping i_other " + str(i_other) + " in " + str(oword))
                 i_other += 1
             else:
-                different = True
+                same = False
         try:
             if i_self == l_self or i_other == l_other:
                 return l_self < l_other
