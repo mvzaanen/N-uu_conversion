@@ -142,6 +142,8 @@ class Entry:
         # find index of headword in Entry
         index = self.headwords[lang].index(headword)
         fp.write("\\entry{\n")
+        fp.write(clean_latex_text(headword.get_word()))
+        fp.write("\n}{\n")
         fp.write("\\textbf{" + clean_latex_text(headword.get_word()) + "}")
         marker = Headword.marker2text(headword.get_marker())
         if marker != "":
@@ -173,12 +175,12 @@ class Entry:
         for l in Entry.Lang_type:
             if l != lang and l != Entry.Lang_type.IPA and l in self.headwords:
                 fp.write("\\underbar{" + Entry.lang2latex(l)+ "}: ")
-                fp.write(", ".join(map(clean_latex_text, map(str, self.headwords[l]))))
+                fp.write(", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " ")
         fp.write("\n}{\n")
         # do the other parentheticals
         for l in Entry.Lang_type:
             if l != lang and l != Entry.Lang_type.IPA and l in self.parentheticals:
                 fp.write("\\underbar{\\textit{" + Entry.lang2latex(l) + "}}: ")
-                fp.write(clean_latex_text(self.parentheticals[l]))
+                fp.write(clean_latex_text(self.parentheticals[l]) + " ")
         fp.write("\n}\n")
         fp.write("\n\n")

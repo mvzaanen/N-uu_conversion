@@ -78,9 +78,11 @@ def write_latex_header(fp):
 \\fancyfoot[C]{} % Bottom center footer
 \\renewcommand{\\headrulewidth}{0.4pt} % Rule under the header
 \\renewcommand{\\footrulewidth}{0pt} % Rule under the footer
+\\addtolength{\\textheight}{\\headsep}
+\\setlength{\\headsep}{0pt} % Separator between header and text
 \\pagestyle{fancy} % Use the custom headers and footers throughout the document
-% headword, pos, IPA, meaning, parentheticals
-\\newcommand{\\entry}[5]{\markboth{#1}{#1}#1#2#3#4#5}
+% headervalue, headword, pos, IPA, meaning, parentheticals
+\\newcommand{\\entry}[6]{#2\markboth{#1}{#1}#3#4#5#6}
 \\setlength{\parindent}{0cm}
 \\setlength{\parskip}{0mm}
 \\begin{document}
