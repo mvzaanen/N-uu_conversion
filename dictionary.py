@@ -65,12 +65,22 @@ def write_latex_header(fp):
     right=23mm,
     top=10mm,
     bottom=10mm,
-    includefoot,
+    includehead,
     twoside
 }
 \\usepackage{tipa}
+\\usepackage{fancyhdr}
+\\fancyhead[L]{\\textsf{\\rightmark}} % Top left header
+\\fancyhead[R]{\\textsf{\\leftmark}} % Top right header
+\\fancyhead[C]{\\textbf{\\textsf{\\thepage}}} % Top center header
+\\fancyfoot[L]{} % Bottom left footer
+\\fancyfoot[R]{} % Bottom right footer
+\\fancyfoot[C]{} % Bottom center footer
+\\renewcommand{\\headrulewidth}{0.4pt} % Rule under the header
+\\renewcommand{\\footrulewidth}{0pt} % Rule under the footer
+\\pagestyle{fancy} % Use the custom headers and footers throughout the document
 % headword, pos, IPA, meaning, parentheticals
-\\newcommand{\\entry}[5]{#1#2#3#4#5}
+\\newcommand{\\entry}[5]{\markboth{#1}{#1}#1#2#3#4#5}
 \\setlength{\parindent}{0cm}
 \\setlength{\parskip}{0mm}
 \\begin{document}
