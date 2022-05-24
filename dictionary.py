@@ -82,7 +82,7 @@ def write_latex_header(fp):
 \\setlength{\\headsep}{0pt} % Separator between header and text
 \\pagestyle{fancy} % Use the custom headers and footers throughout the document
 % headervalue, headword, pos, IPA, meaning, parentheticals
-\\newcommand{\\entry}[6]{#2\markboth{#1}{#1}#3#4#5#6}
+\\newcommand{\\entry}[6]{#2\\markboth{#1}{#1}#3#4#5#6}
 \\setlength{\parindent}{0cm}
 \\setlength{\parskip}{0mm}
 \\begin{document}
