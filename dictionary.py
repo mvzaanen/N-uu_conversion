@@ -69,10 +69,10 @@ def write_latex_header(fp):
     twoside
 }
 \\usepackage{tipa}
-\\newenvironment{entry}
-{\\noindent}
-{\\vspace{-1em}}
-\setlength{\parsep}{0pt}
+% headword, pos, IPA, meaning, parentheticals
+\\newcommand{\\entry}[5]{#1#2#3#4#5}
+\\setlength{\parindent}{0cm}
+\\setlength{\parskip}{0mm}
 \\begin{document}
 """
     fp.write(header)
