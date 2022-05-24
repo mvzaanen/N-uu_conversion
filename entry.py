@@ -141,9 +141,9 @@ class Entry:
         """
         # find index of headword in Entry
         index = self.headwords[lang].index(headword)
-        fp.write("\\entry{\n")
+        fp.write("\\entry{")
         fp.write(clean_latex_text(headword.get_word()))
-        fp.write("\n}{\n")
+        fp.write("}{")
         fp.write("\\textbf{" + clean_latex_text(headword.get_word()) + "}")
         marker = Headword.marker2text(headword.get_marker())
         if marker != "":
@@ -152,11 +152,11 @@ class Entry:
         # write the other headwords
         if len(self.headwords[lang]) != 1:
             fp.write(", " + ", ".join(map(clean_latex_text, map(str, [hw for hw in self.headwords[lang] if hw != headword]))))
-        fp.write("\n}{\n")
+        fp.write("}{")
 
         # write POS
         fp.write("(" + clean_latex_text(Entry.pos2text(self.pos)) + ")")
-        fp.write("\n}{\n")
+        fp.write("}{")
 
         if lang == Entry.Lang_type.NUU: # write IPA after N|uu
             if Entry.Lang_type.IPA in self.headwords: # do we have IPA?
@@ -169,18 +169,18 @@ class Entry:
                 fp.write("[\\textipa{")
                 fp.write(", ".join(map(clean_latex_ipa, map(str, ipa_ordered))))
                 fp.write("}]")
-        fp.write("\n}{\n")
+        fp.write("}{")
 
         # do the other languages
         for l in Entry.Lang_type:
             if l != lang and l != Entry.Lang_type.IPA and l in self.headwords:
                 fp.write("\\underbar{" + Entry.lang2latex(l)+ "}: ")
                 fp.write(", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " ")
-        fp.write("\n}{\n")
+        fp.write("}{")
         # do the other parentheticals
         for l in Entry.Lang_type:
-            if l != lang and l != Entry.Lang_type.IPA and l in self.parentheticals:
+            if l != Entry.Lang_type.IPA and l in self.parentheticals:
                 fp.write("\\underbar{\\textit{" + Entry.lang2latex(l) + "}}: ")
                 fp.write(clean_latex_text(self.parentheticals[l]) + " ")
-        fp.write("\n}\n")
+        fp.write("}")
         fp.write("\n\n")
