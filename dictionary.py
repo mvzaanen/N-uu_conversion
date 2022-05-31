@@ -54,10 +54,11 @@ def parse(text):
     return result
 
 
-def write_latex_header(fp):
-    """write_latex_header writes a LaTeX header for the dictionary to fp.
+def get_latex_header():
+    """get_latex_header returns a string with a LaTeX header for the
+    dictionary.
     """
-    header = """\\documentclass[10pt,twocolumn]{extarticle}
+    return """\\documentclass[10pt,twocolumn]{extarticle}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
@@ -90,13 +91,13 @@ def write_latex_header(fp):
 \\setlength{\parskip}{0mm}
 \\begin{document}
 """
-    fp.write(header)
 
 
-def write_latex_footer(fp):
-    """write_latex_footer writes a LaTeX footer for the dictionary to fp.
+def get_latex_footer():
+    """get_latex_footer returns a string with a LaTeX footer for the
+    dictionary.
     """
-    fp.write("\\end{document}\n")
+    return "\\end{document}\n"
 
 
 def skip_sort_words(word, i):
@@ -305,44 +306,43 @@ class Dictionary:
         return result
 
 
-    def write_portal(self, filename):
-        """write_portal writes the dictionary information to the file
-        with name filename in the format that can be used for the
-        dictionary portal.
+    def get_portal(self):
+        """get_portal returns a string of the dictionary information
+        in the format that can be used for the dictionary portal.
         """
-        output = open(filename, "w")
+        result = ""
         for i in self.entries:
-            i.write_portal(output)
-        output.close()
+            result += i.get_portal()
+        return result
 
 
-    def write_lang_latex(self, fp, lang):
-        """write_lang_latex writes the LaTeX lemmas sorted according
-        to mapping to fp.
+    def get_lang_latex(self, lang):
+        """get_lang_latex returns a string with the LaTeX lemmas
+        sorted according to mapping.
         """
-        fp.write("{\\hfill\\\\\\Large\\textbf{" + Entry.lang2latex_long(lang) + "}}")
-        fp.write("\\renewcommand*\\nowtitle{" + Entry.lang2latex_long(lang) + " }%")
+        result = "{\\hfill\\\\\\Large\\textbf{" + Entry.lang2latex_long(lang) + "}}"
+        result += "\\renewcommand*\\nowtitle{" + Entry.lang2latex_long(lang) + " }\n"
         for element in sorted(self.sort_map[lang]):
             for values in sorted(self.sort_map[lang][element], key = lambda x: entry_sort(self.entries[x[0]], x[1], lang)):
                 index = values[0] # index in entries
                 word = values[1] # actual, original word
-                self.entries[index].write_latex(fp, word, lang)
+                result += self.entries[index].get_latex(word, lang)
+        return result
 
 
-    def write_latex(self, filename):
-        """Write_latex creates a LaTeX file containing the dictionary
+    def get_latex(self):
+        """get_latex returns a string containing the dictionary
         information.
         """
-        output = open(filename, "w")
-        write_latex_header(output)
+        result = get_latex_header()
         ### N|uu
-        self.write_lang_latex(output, Entry.Lang_type.NUU)
+        result += self.get_lang_latex(Entry.Lang_type.NUU)
         ### Nama
-        self.write_lang_latex(output, Entry.Lang_type.NAMA)
+        result += self.get_lang_latex(Entry.Lang_type.NAMA)
         ### Afrikaans
-        self.write_lang_latex(output, Entry.Lang_type.AFRIKAANS)
+        result += self.get_lang_latex(Entry.Lang_type.AFRIKAANS)
         ### English
-        self.write_lang_latex(output, Entry.Lang_type.ENGLISH)
-        write_latex_footer(output)
-        output.close()
+        result += self.get_lang_latex(Entry.Lang_type.ENGLISH)
+        result += get_latex_footer()
+        return result
 

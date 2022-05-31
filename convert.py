@@ -37,9 +37,13 @@ def write_output(base, data):
     app.
     """
     logging.debug("Writing app output to " + base + ".txt")
-    data.write_portal(base + ".txt")
+    output = open(base + ".txt", "w")
+    output.write(data.get_portal())
+    output.close()
     logging.debug("Writing app output to " + base + ".tex")
-    data.write_latex(base + ".tex")
+    output = open(base + ".tex", "w")
+    output.write(data.get_latex())
+    output.close()
 
 
 def main():

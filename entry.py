@@ -130,50 +130,51 @@ class Entry:
         return result
 
 
-    def write_portal(self, fp):
-        """write_portal writes the entry to fp so the information can
-        be incorporated in the dictionary portal.
+    def get_portal(self):
+        """get_portal returns a string of the entry to fp so the
+        information can be incorporated in the dictionary portal.
         """
-        fp.write("**\n")
-        fp.write("<Project>N|uu dictionary\n")
+        result = "**\n"
+        result += "<Project>N|uu dictionary\n"
         for lang in self.headwords:
-            fp.write("<" + Entry.lang2text(lang) + ">")
-            fp.write("\n<synonym>".join(map(clean_portal, self.headwords[lang])))
-            fp.write("\n")
-        fp.write("<POS>" + Entry.pos2text(self.pos) + "\n")
+            result += "<" + Entry.lang2text(lang) + ">"
+            result += "\n<synonym>".join(map(clean_portal, self.headwords[lang]))
+            result += "\n"
+        result += "<POS>" + Entry.pos2text(self.pos) + "\n"
         for lang in self.parentheticals:
-            fp.write("<" + Entry.lang2text(lang) + " par>")
-            fp.write(clean_portal(self.parentheticals[lang]))
-            fp.write("\n")
-        fp.write("**\n")
+            result += "<" + Entry.lang2text(lang) + " par>"
+            result += clean_portal(self.parentheticals[lang])
+            result += "\n"
+        result += "**\n"
+        return result
 
 
-    def write_latex(self, fp, headword, lang):
-        """write_latex writes the entry to fp so the
-        information can be incorporated in a LaTeX file.  The lemma
-        will be based on the headword which is found in the language
-        lang.  This will not work if lang is Lang_type.IPA as that
-        requires special treatment.
+    def get_latex(self, headword, lang):
+        """get_latex returns a string of the information of the entry 
+        in LaTeX format.  The lemma will be based on the headword
+        which is found in the language lang.  This will not work if
+        lang is Lang_type.IPA as that requires special treatment.
         """
+        result = ""
         # find index of headword in Entry
         index = self.headwords[lang].index(headword)
-        fp.write("\\entry{")
-        fp.write(clean_latex_text(headword.get_word()))
-        fp.write("}{")
-        fp.write("\\textbf{" + clean_latex_text(headword.get_word()))
+        result += "\\entry{"
+        result += clean_latex_text(headword.get_word())
+        result += "}{"
+        result += "\\textbf{" + clean_latex_text(headword.get_word())
         marker = Headword.marker2text(headword.get_marker())
         if marker != "":
-            fp.write(" (" + marker + ")")
-        fp.write("}")
+            result += " (" + marker + ")"
+        result += "}"
 
         # write the other headwords
         if len(self.headwords[lang]) != 1:
-            fp.write(", " + ", ".join(map(clean_latex_text, map(str, [hw for hw in self.headwords[lang] if hw != headword]))))
-        fp.write("}{")
+            result += ", " + ", ".join(map(clean_latex_text, map(str, [hw for hw in self.headwords[lang] if hw != headword])))
+        result += "}{"
 
         # write POS
-        fp.write("(" + clean_latex_text(Entry.pos2text(self.pos)) + ")")
-        fp.write("}{")
+        result += "(" + clean_latex_text(Entry.pos2text(self.pos)) + ")"
+        result += "}{"
 
         if lang == Entry.Lang_type.NUU: # write IPA after N|uu
             if Entry.Lang_type.IPA in self.headwords: # do we have IPA?
@@ -183,21 +184,22 @@ class Entry:
                     ipa_ordered.insert(0, ipa_ordered.pop(index))
                 except IndexError:
                     logging.error("Different number of N|uu and IPA entries on line " + str(self.line_nr))
-                fp.write("[\\textipa{")
-                fp.write(", ".join(map(clean_latex_ipa, map(str, ipa_ordered))))
-                fp.write("}]")
-        fp.write("}{")
+                result += "[\\textipa{"
+                result += ", ".join(map(clean_latex_ipa, map(str, ipa_ordered)))
+                result += "}]"
+        result += "}{"
 
         # do the other languages
         for l in Entry.Lang_type:
             if l != lang and l != Entry.Lang_type.IPA and l in self.headwords:
-                fp.write("\\underbar{" + Entry.lang2latex(l)+ "}: ")
-                fp.write(", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " ")
-        fp.write("}{")
+                result += "\\underbar{" + Entry.lang2latex(l)+ "}: "
+                result += ", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " "
+        result += "}{"
         # do the other parentheticals
         for l in Entry.Lang_type:
             if l != Entry.Lang_type.IPA and l in self.parentheticals:
-                fp.write("\\underbar{\\textit{" + Entry.lang2latex(l) + "}}: ")
-                fp.write(clean_latex_text(self.parentheticals[l]) + " ")
-        fp.write("}")
-        fp.write("\n\n")
+                result += "\\underbar{\\textit{" + Entry.lang2latex(l) + "}}: "
+                result += clean_latex_text(self.parentheticals[l]) + " "
+        result += "}"
+        result += "\n\n"
+        return result
