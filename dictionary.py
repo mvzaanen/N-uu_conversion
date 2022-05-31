@@ -71,9 +71,11 @@ def write_latex_header(fp):
 }
 \\usepackage{tipa}
 \\usepackage{fancyhdr}
+\\newcommand*\\nowtitle{}
 \\fancyhead[L]{\\textsf{\\rightmark}} % Top left header
 \\fancyhead[R]{\\textsf{\\leftmark}} % Top right header
-\\fancyhead[C]{\\textbf{\\thepage}} % Top center header
+\\fancyhead[CO]{\\textbf{\\thepage}} % Top odd center header
+\\fancyhead[CE]{\\textbf{\\nowtitle}} % Top even center header
 \\fancyfoot[L]{} % Bottom left footer
 \\fancyfoot[R]{} % Bottom right footer
 \\fancyfoot[C]{} % Bottom center footer
@@ -318,10 +320,9 @@ class Dictionary:
         """write_lang_latex writes the LaTeX lemmas sorted according
         to mapping to fp.
         """
-        fp.write("\\section*{" + Entry.lang2text(lang) + "}")
+        fp.write("{\\hfill\\\\\\Large\\textbf{" + Entry.lang2latex_long(lang) + "}}")
+        fp.write("\\renewcommand*\\nowtitle{" + Entry.lang2latex_long(lang) + " }%")
         for element in sorted(self.sort_map[lang]):
-            if len(self.sort_map[lang][element]) != 1:
-                print(element)
             for values in sorted(self.sort_map[lang][element], key = lambda x: entry_sort(self.entries[x[0]], x[1], lang)):
                 index = values[0] # index in entries
                 word = values[1] # actual, original word

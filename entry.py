@@ -33,6 +33,7 @@ class Entry:
         elif lang == Entry.Lang_type.ENGLISH:
             return "Eng"
 
+
     def lang2latex(lang):
         if lang == Entry.Lang_type.NUU:
             return "N$|$uu"
@@ -46,6 +47,21 @@ class Entry:
             return "Afr$^{\\mbox{\\footnotesize{ons}}}$"
         elif lang == Entry.Lang_type.ENGLISH:
             return "Eng"
+
+
+    def lang2latex_long(lang):
+        if lang == Entry.Lang_type.NUU:
+            return "N$|$uu"
+        elif lang == Entry.Lang_type.IPA:
+            return "IPA"
+        elif lang == Entry.Lang_type.NAMA:
+            return "Nama"
+        elif lang == Entry.Lang_type.AFRIKAANS:
+            return "Afrikaans"
+        elif lang == Entry.Lang_type.AFR_LOC:
+            return "Afr$^{\\mbox{\\footnotesize{ons}}}$"
+        elif lang == Entry.Lang_type.ENGLISH:
+            return "English"
 
 
     pos2text_map = {
