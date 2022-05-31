@@ -6,6 +6,7 @@ This file contains the implementation of the Dictionary class.
 
 from entry import Entry
 from headword import Headword
+from output_helper import is_above
 import logging
 import re
 
@@ -72,7 +73,7 @@ def write_latex_header(fp):
 \\usepackage{fancyhdr}
 \\fancyhead[L]{\\textsf{\\rightmark}} % Top left header
 \\fancyhead[R]{\\textsf{\\leftmark}} % Top right header
-\\fancyhead[C]{\\textbf{\\textsf{\\thepage}}} % Top center header
+\\fancyhead[C]{\\textbf{\\thepage}} % Top center header
 \\fancyfoot[L]{} % Bottom left footer
 \\fancyfoot[R]{} % Bottom right footer
 \\fancyfoot[C]{} % Bottom center footer
@@ -96,7 +97,93 @@ def write_latex_footer(fp):
     fp.write("\\end{document}\n")
 
 
+def skip_sort_words(word, i):
+	l = len(word)
+	if i + 7 < l and word[i:i + 7] == "iemand ": #
+		return (i + 7, True)
+	if i + 7 < l and word[i:i + 7] == "(wees) ": #
+		return (i + 7, True)
+	if i + 5 < l and word[i:i + 5] == "(be) ": #
+		return (i + 5, True)
+	if i + 5 < l and word[i:i + 5] == "iets ": #
+		return (i + 5, True)
+	if i + 5 < l and word[i:i + 5] == "wees ": #
+		return (i + 5, True)
+	if i + 4 < l and word[i:i + 4] == "die ": #
+		return (i + 4, True)
+	if i + 4 < l and word[i:i + 4] == "the ": #
+		return (i + 4, True)
+	if i + 3 < l and word[i:i + 3] == "be ": #
+		return (i + 3, True)
+	if i + 3 < l and word[i:i + 3] == "'n ": #
+		return (i + 3, True)
+	if i + 3 < l and word[i:i + 3] == "om ": #
+		return (i + 3, True)
+	if i + 3 < l and word[i:i + 3] == "te ": #
+		return (i + 3, True)
+	if i + 2 < l and word[i:i + 2] == "a ": #
+		return (i + 2, True)
+	# skip -, `, space, and LAST QUARTER MOON (9790) if present
+	if i < l and word[i] in "- `'(" + chr(9790):
+		return (i + 1, True)
+	return (i, False)
 
+                          #!        #!
+sort_in = "āâēêëīîōôūû"
+sort_in += "ʘǀǁ"
+sort_in += "!" + chr(451)
+sort_in += "ǂ"
+sort_out = "aaeeeiioouu"
+sort_out += chr(ord("z")+1) + chr(ord("z")+2) + chr(ord("z")+3)
+sort_out += chr(ord("z")+4) + chr(ord("z")+4)
+sort_out += chr(ord("z")+5)
+
+
+def clean_sort(element):
+    """clean_sort simplifies entries (element) such that they can be
+    ordered properly together.
+    """
+    # grab the string representation and lowercase
+    clean_element = str(element).lower()
+    i_word = 0
+    l_word = len(clean_element)
+    # skip words
+    (i_word, skipped) = skip_sort_words(clean_element, i_word)
+    while skipped:
+        (i_word, skipped) = skip_sort_words(clean_element, i_word)
+    clean_element = clean_element[i_word:]
+    # clean letters
+    trans_map = clean_element.maketrans(sort_in, sort_out)
+    clean_element = clean_element.translate(trans_map)
+    result = ""
+    for i in clean_element:
+        if not is_above(ord(i)):
+            result += i
+    return result
+
+
+def entry_sort(entry, element, lang):
+    """entry_sort provides a string that can be used to sort within
+    entries of the same clean_sort.
+    """
+    result = []
+    # grab the string representation and lowercase
+    el = str(element).lower()
+    i_word = 0
+    l_word = len(el)
+    # skip words
+    (i_word, skipped) = skip_sort_words(el, i_word)
+    while skipped:
+        (i_word, skipped) = skip_sort_words(el, i_word)
+    # first the cleaned headword
+    result.append(el[i_word:])
+    # next the POS
+    result.append(Entry.pos2text(entry.pos))
+    # next the other headwords
+    result.append(", ".join(map(str, [hw for hw in entry.headwords[lang] if hw != element])))
+    # next the skipped initial part
+    result.append(el[:i_word])
+    return " @ ".join(result)
 
 
 
@@ -110,10 +197,16 @@ class Dictionary:
         # Entry class).  The position in this list is used in the mappings
         # (below).
         self.entries = []
-        # The mappings map a headword to the entry (index) in the entries variable.
+        # The lang_map maps a headword to the entry (index) in the
+        # entries variable.  The sort_map keeps the simplified word
+        # (used for sorting) as keys, mapping to the entries (indices)
+        # in the entries variable as well as the original word (so a
+        # tuple of index and original word).
         self.lang_map = {}
+        self.sort_map = {}
         for lang in Entry.Lang_type:
             self.lang_map[lang] = {}
+            self.sort_map[lang] = {}
 
 
     def check_add_map(self, element, lang, index, line_nr):
@@ -123,6 +216,7 @@ class Dictionary:
         line.
         """
         if element != None:
+            # Add entry to lang_map
             if element in self.lang_map[lang]:
                 lines = []
                 for el in self.lang_map[lang][element]:
@@ -131,6 +225,12 @@ class Dictionary:
                 self.lang_map[lang][element].append(index)
             else: # Set initial value
                 self.lang_map[lang][element] = [index]
+            # Add entry to sort_map, first find word to order on
+            sort_element = clean_sort(element)
+            if sort_element in self.sort_map[lang]:
+                self.sort_map[lang][sort_element].append((index, element))
+            else: # Set initial value
+                self.sort_map[lang][sort_element] = [(index, element)]
 
 
     def insert(self, n_uu, pos, ipa, nama, afrikaans, afr_loc, english, par_nama, par_afrikaans, par_english, line_nr):
@@ -218,9 +318,14 @@ class Dictionary:
         """write_lang_latex writes the LaTeX lemmas sorted according
         to mapping to fp.
         """
-        for element in sorted(self.lang_map[lang]):
-            for index in self.lang_map[lang][element]:
-                self.entries[index].write_latex(fp, element, lang)
+        fp.write("\\section*{" + Entry.lang2text(lang) + "}")
+        for element in sorted(self.sort_map[lang]):
+            if len(self.sort_map[lang][element]) != 1:
+                print(element)
+            for values in sorted(self.sort_map[lang][element], key = lambda x: entry_sort(self.entries[x[0]], x[1], lang)):
+                index = values[0] # index in entries
+                word = values[1] # actual, original word
+                self.entries[index].write_latex(fp, word, lang)
 
 
     def write_latex(self, filename):

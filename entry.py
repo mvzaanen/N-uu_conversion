@@ -144,10 +144,11 @@ class Entry:
         fp.write("\\entry{")
         fp.write(clean_latex_text(headword.get_word()))
         fp.write("}{")
-        fp.write("\\textbf{" + clean_latex_text(headword.get_word()) + "}")
+        fp.write("\\textbf{" + clean_latex_text(headword.get_word()))
         marker = Headword.marker2text(headword.get_marker())
         if marker != "":
             fp.write(" (" + marker + ")")
+        fp.write("}")
 
         # write the other headwords
         if len(self.headwords[lang]) != 1:
