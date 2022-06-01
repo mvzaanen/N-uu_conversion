@@ -320,7 +320,7 @@ class Dictionary:
         """get_lang_latex returns a string with the LaTeX lemmas
         sorted according to mapping.
         """
-        result = "{\\hfill\\\\\\Large\\textbf{" + Entry.lang2latex_long(lang) + "}}"
+        result = "{\\hfill\\\\\\Large\\textbf{" + Entry.lang2latex_long(lang) + "}}\\\\\n"
         result += "\\renewcommand*\\nowtitle{" + Entry.lang2latex_long(lang) + " }\n"
         for element in sorted(self.sort_map[lang]):
             for values in sorted(self.sort_map[lang][element], key = lambda x: entry_sort(self.entries[x[0]], x[1], lang)):
