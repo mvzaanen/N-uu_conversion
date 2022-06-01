@@ -8,7 +8,7 @@ represents an entry in the dictionary (spreadsheet).
 from enum import Enum
 from headword import Headword
 import logging
-from output_helper import clean_portal, clean_latex_text, clean_latex_ipa
+from output_helper import clean_portal, clean_latex_text, clean_latex_ipa, latex_cut
 
 
 class Entry:
@@ -159,7 +159,7 @@ class Entry:
         # find index of headword in Entry
         index = self.headwords[lang].index(headword)
         result += "\\entry{"
-        result += clean_latex_text(headword.get_word())
+        result += latex_cut(clean_latex_text(headword.get_word()), 15)
         result += "}{"
         result += "\\textbf{" + clean_latex_text(headword.get_word())
         marker = Headword.marker2text(headword.get_marker())

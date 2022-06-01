@@ -402,6 +402,59 @@ def clean_latex(text, mapping):
     return result
 
 
+def latex_cut(text, length):
+    """latex_cut cuts text to length taking LaTeX commands into
+    account.  This isn't perfect due to potentially complex nesting of
+    commands.  Nested curly brackets are counted by the number of
+    characters in the most deeply nested brackets unless that is a
+    command (starting with \ ).  It expects a
+    (e.g., \={u} is one character, \textbf{u} is one character,
+    \textbf{\textit{abc}} is three characters, \textbf{\longcommand}
+    is one character.)  If the selected text is shorter, then \ldots
+    is added.
+    """
+    counter = 0  # counter to check against length
+    index = 0  # index in original text
+    result = ""
+    open_brackets = 0
+    while index < len(text) and counter < length:
+        if text[index] == "\\": # handle command
+            begin_command = index
+            while index < len(text) and text[index] not in " {}":
+                index += 1
+            if index == len(text): # at the end of text
+                result += text[begin_command:]
+                counter += 1
+            elif text[index] == " " or text[index] == "}": # no arguments count as one
+                result += text[begin_command:index]
+                if text[index] == "}": # don't count }
+                    result += text[index]
+                    open_brackets -= 1
+                elif text[index] == " " and counter < length:  # add space if allowed
+                    result += text[index]
+                counter += 1
+            elif text[index] == "{": # argument
+                open_brackets += 1
+                result += text[begin_command:index]
+                result += text[index] # add open bracket
+            index += 1
+        else:
+            result += text[index]
+            if text[index] == "}": # don't count }
+                open_brackets -= 1
+            else:
+                counter += 1
+            index += 1
+    while index < len(text) and text[index] == "}": # don't count }
+        result += text[index]
+        open_brackets -= 1
+        index += 1
+    result += open_brackets * "}"
+    if index < len(text):
+        result += "\\ldots{}"
+    return result
+
+
 def clean_latex_text(text):
     """clean_latex_text converts the text to LaTeX text.
     """
