@@ -158,13 +158,15 @@ class Entry:
         result = ""
         # find index of headword in Entry
         index = self.headwords[lang].index(headword)
-        result += "\\entry{"
-        result += latex_cut(clean_latex_text(headword.get_word()), 15)
-        result += "}{"
-        result += "\\textbf{" + clean_latex_text(headword.get_word())
+        main = clean_latex_text(headword.get_word())
         marker = Headword.marker2text(headword.get_marker())
         if marker != "":
-            result += " (" + marker + ")"
+            main += " (" + marker + ")"
+
+        result += "\\entry{"
+        result += latex_cut(main, 45)
+        result += "}{"
+        result += "\\textbf{" + main
         result += "}"
 
         # write the other headwords
