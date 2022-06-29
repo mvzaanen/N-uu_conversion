@@ -192,7 +192,12 @@ class Entry:
         result += "}{"
 
         # do the other languages
-        for l in Entry.Lang_type:
+        lang_order = [Entry.Lang_type.NUU, Entry.Lang_type.IPA, Entry.Lang_type.NAMA, Entry.Lang_type.AFRIKAANS, Entry.Lang_type.AFR_LOC, Entry.Lang_type.ENGLISH]
+        if lang == Entry.Lang_type.AFRIKAANS:
+            # In case of AFRIKAANS, do AFR_LOC first
+            lang_order = [Entry.Lang_type.AFR_LOC, Entry.Lang_type.NUU, Entry.Lang_type.IPA, Entry.Lang_type.NAMA, Entry.Lang_type.AFRIKAANS, Entry.Lang_type.ENGLISH]
+
+        for l in lang_order:
             if l != lang and l != Entry.Lang_type.IPA and l in self.headwords:
                 result += "\\underbar{" + Entry.lang2latex(l)+ "}: "
                 result += ", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " "
