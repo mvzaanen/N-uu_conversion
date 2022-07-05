@@ -172,6 +172,12 @@ class Entry:
         # write the other headwords
         if len(self.headwords[lang]) != 1:
             result += ", " + ", ".join(map(clean_latex_text, map(str, [hw for hw in self.headwords[lang] if hw != headword])))
+
+        if lang == Entry.Lang_type.AFRIKAANS: # write AFR_LOC after AFRIKAANS
+            if Entry.Lang_type.AFR_LOC in self.headwords:
+                result += " \\underbar{" + Entry.lang2latex(Entry.Lang_type.AFR_LOC)+ "}: "
+                result += ", ".join(map(clean_latex_text, map(str, self.headwords[Entry.Lang_type.AFR_LOC]))) + " "
+
         result += "}{"
 
         # write POS
@@ -193,14 +199,13 @@ class Entry:
 
         # do the other languages
         lang_order = [Entry.Lang_type.NUU, Entry.Lang_type.IPA, Entry.Lang_type.NAMA, Entry.Lang_type.AFRIKAANS, Entry.Lang_type.AFR_LOC, Entry.Lang_type.ENGLISH]
-        if lang == Entry.Lang_type.AFRIKAANS:
-            # In case of AFRIKAANS, do AFR_LOC first
-            lang_order = [Entry.Lang_type.AFR_LOC, Entry.Lang_type.NUU, Entry.Lang_type.IPA, Entry.Lang_type.NAMA, Entry.Lang_type.AFRIKAANS, Entry.Lang_type.ENGLISH]
-
         for l in lang_order:
-            if l != lang and l != Entry.Lang_type.IPA and l in self.headwords:
-                result += "\\underbar{" + Entry.lang2latex(l)+ "}: "
-                result += ", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " "
+            # Skip AFR_LOC if the language is AFRIKAANS (as that is
+            # part of the main entry)
+            if not (lang == Entry.Lang_type.AFRIKAANS and l == Entry.Lang_type.AFR_LOC):
+                if l != lang and l != Entry.Lang_type.IPA and l in self.headwords:
+                    result += "\\underbar{" + Entry.lang2latex(l)+ "}: "
+                    result += ", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " "
         result += "}{"
         # do the other parentheticals
         for l in Entry.Lang_type:
