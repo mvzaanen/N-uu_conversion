@@ -51,11 +51,11 @@ class Entry:
 
     def lang2latex_long(lang):
         if lang == Entry.Lang_type.NUU:
-            return "N$|$uu"
+            return "N$|$uuki"
         elif lang == Entry.Lang_type.IPA:
             return "IPA"
         elif lang == Entry.Lang_type.NAMA:
-            return "Nama"
+            return "Namagowab"
         elif lang == Entry.Lang_type.AFRIKAANS:
             return "Afrikaans"
         elif lang == Entry.Lang_type.AFR_LOC:
