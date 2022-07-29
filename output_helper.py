@@ -102,10 +102,10 @@ ipa_latex_mapping = {
         124 : "$|$",
         125 : "\\}",
         126 : "\\~{}",
-        194 : "\^{A}", # LATIN CAPITAL LETTER A WITH CIRCUMFLEX
-        226 : "\^{a}", # LATIN SMALL LETTER A WITH CIRCUMFLEX
+        194 : "\\^{A}", # LATIN CAPITAL LETTER A WITH CIRCUMFLEX
+        226 : "\\^{a}", # LATIN SMALL LETTER A WITH CIRCUMFLEX
         230 : "\\ae{}", # LATIN SMALL LETTER AE
-        231 : "\c{c}", # LATIN SMALL LETTER C WITH CEDILLA
+        231 : "\\c{c}", # LATIN SMALL LETTER C WITH CEDILLA
         233 : "\\'{e}", # LATIN SMALL LETTER E WITH ACUTE
         234 : "\\^{e}", # LATIN SMALL LETTER E WITH CIRCUMFLEX
         235 : '\\"{e}', # LATIN SMALL LETTER E WITH DIAERESIS
@@ -278,10 +278,10 @@ text_latex_mapping = {
         125 : "\\}",
         126 : "\\~{}",
         160 : "~", # NON-BREAKING SPACE
-        176 : "$^{\circ}$", # DEGREE SIGN
-        194 : "\^{A}", # LATIN CAPITAL LETTER A WITH CIRCUMFLEX
-        206 : "\^{I}", # LATIN CAPITAL LETTER I WITH CIRCUMFLEX
-        226 : "\^{a}", # LATIN SMALL LETTER A WITH CIRCUMFLEX
+        176 : "$^{\\circ}$", # DEGREE SIGN
+        194 : "\\^{A}", # LATIN CAPITAL LETTER A WITH CIRCUMFLEX
+        206 : "\\^{I}", # LATIN CAPITAL LETTER I WITH CIRCUMFLEX
+        226 : "\\^{a}", # LATIN SMALL LETTER A WITH CIRCUMFLEX
         233 : "\\'{e}", # LATIN SMALL LETTER E WITH ACUTE
         234 : "\\^{e}", # LATIN SMALL LETTER E WITH CIRCUMFLEX
         235 : '\\"{e}', # LATIN SMALL LETTER E WITH DIAERESIS
@@ -322,6 +322,7 @@ text_latex_mapping = {
         8230 : "\\ldots", # HORIZONTAL ELLIPSIS
         9789 : "}", # FIRST QUARTER MOON
         9790 : "\\textit{", # LAST QUARTER MOON
+        65279 : " ", # ZERO WIDTH NO-BREAK SPACE
     }
 
 abbreviations = {
