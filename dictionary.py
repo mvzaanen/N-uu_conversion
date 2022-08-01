@@ -58,8 +58,10 @@ def get_latex_header():
     """get_latex_header returns a string with a LaTeX header for the
     dictionary.
     """
-    return """\\documentclass[10pt,twocolumn]{extarticle}
+    return """\\documentclass[10pt]{extarticle}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
+\\usepackage{multicol}
+\\usepackage{url}
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
     a4paper,
@@ -89,6 +91,8 @@ def get_latex_header():
 \\setlength{\parindent}{0cm}
 \\setlength{\parskip}{0mm}
 \\begin{document}
+\\include{intro}
+\\begin{multicols}{2}
 """
 
 
@@ -96,7 +100,9 @@ def get_latex_footer():
     """get_latex_footer returns a string with a LaTeX footer for the
     dictionary.
     """
-    return "\\end{document}\n"
+    return """\\end{multicols}
+\\end{document}
+"""
 
 
 def skip_sort_words(word, i):
