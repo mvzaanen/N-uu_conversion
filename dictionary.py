@@ -62,6 +62,7 @@ def get_latex_header():
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
 \\usepackage{multicol}
 \\usepackage{url}
+\\usepackage{graphicx}
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
     a4paper,
