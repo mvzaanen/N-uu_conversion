@@ -59,10 +59,11 @@ def get_latex_header():
     dictionary.
     """
     return """\\documentclass[10pt]{extarticle}
+\\usepackage{booktabs}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
+\\usepackage{graphicx}
 \\usepackage{multicol}
 \\usepackage{url}
-\\usepackage{graphicx}
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
     a4paper,
