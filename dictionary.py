@@ -59,13 +59,11 @@ def get_latex_header():
     dictionary.
     """
     return """\\documentclass[10pt]{extarticle}
+\\usepackage[backend=biber,style=authoryear]{biblatex}
+\\defbibheading{subbibliography}{}
+\\addbibresource{publications.bib}
 \\usepackage{booktabs}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
-\\usepackage{graphicx}
-\\usepackage{multibib}
-\\usepackage{multicol}
-\\usepackage{natbib}
-\\usepackage{url}
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
     a4paper,
@@ -76,7 +74,6 @@ def get_latex_header():
     includehead,
     twoside
 }
-\\usepackage{tipa}
 \\usepackage{fancyhdr}
 \\newcommand*\\nowtitle{}
 \\fancyhead[L]{\\textsf{\\rightmark}} % Top left header
@@ -91,6 +88,11 @@ def get_latex_header():
 \\setlength{\\headsep}{0pt} % Separator between header and text
 \\pagestyle{fancy} % Use the custom headers and footers throughout the document
 % headervalue, headword, pos, IPA, meaning, parentheticals
+\\usepackage{graphicx}
+\\usepackage{linguex}
+\\usepackage{multicol}
+\\usepackage{url}
+\\usepackage{tipa}
 \\newcommand{\\entry}[6]{#2\\markboth{#1}{#1} #3 #4 #5 #6}
 \\setlength{\parindent}{0cm}
 \\setlength{\parskip}{0mm}
