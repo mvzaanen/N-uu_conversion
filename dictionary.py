@@ -62,7 +62,9 @@ def get_latex_header():
 \\usepackage{booktabs}
 \\usepackage[dvips=false,pdftex=false,vtex=false]{geometry}
 \\usepackage{graphicx}
+\\usepackage{multibib}
 \\usepackage{multicol}
+\\usepackage{natbib}
 \\usepackage{url}
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
