@@ -308,6 +308,7 @@ text_latex_mapping = {
         688 : "\\super{h}", # MODIFIER LETTER SMALL H
         690 : "$^{j}$", # Modifier Letter Small J 
         700 : "'", # MODIFIER LETTER APOSTROPHE
+        768 : "\\`{", # COMBINING GRAVE ACCENT
         769 : "\\'{", # COMBINING ACUTE ACCENT
         770 : "\\^{", # COMBINING CIRCUMFLEX ACCENT
         771 : "\\~{", # COMBINING TILDE
