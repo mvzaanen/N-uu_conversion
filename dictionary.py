@@ -96,7 +96,7 @@ def get_latex_header():
 \\newcommand{\\entry}[6]{#2\\markboth{#1}{#1} #3 #4 #5 #6}
 \\setlength{\parindent}{0cm}
 \\setlength{\parskip}{0mm}
-\\usepackage[finale,hidelinks]{hyperref}
+\\usepackage[final,hidelinks]{hyperref}
 \\urlstyle{rm}
 \\begin{document}
 \\include{intro}
