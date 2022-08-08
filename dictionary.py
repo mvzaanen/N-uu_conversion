@@ -59,6 +59,7 @@ def get_latex_header():
     dictionary.
     """
     return """\\documentclass[10pt]{extarticle}
+\\usepackage{array}
 \\usepackage[backend=biber,style=authoryear]{biblatex}
 \\defbibheading{subbibliography}{}
 \\addbibresource{publications.bib}
@@ -91,11 +92,12 @@ def get_latex_header():
 \\usepackage{graphicx}
 \\usepackage{linguex}
 \\usepackage{multicol}
-\\usepackage{url}
 \\usepackage{tipa}
 \\newcommand{\\entry}[6]{#2\\markboth{#1}{#1} #3 #4 #5 #6}
 \\setlength{\parindent}{0cm}
 \\setlength{\parskip}{0mm}
+\\usepackage[finale,hidelinks]{hyperref}
+\\urlstyle{rm}
 \\begin{document}
 \\include{intro}
 \\begin{multicols}{2}
@@ -332,6 +334,7 @@ class Dictionary:
         sorted according to mapping.
         """
         result = "{\\hfill\\\\\\Large\\textbf{" + Entry.lang2latex_long(lang) + "}}\\\\\n"
+        result += "\\addcontentsline{toc}{section}{" + Entry.lang2latex_long(lang) + "}\n"
         result += "\\renewcommand*\\nowtitle{" + Entry.lang2latex_long(lang) + " }\n"
         for element in sorted(self.sort_map[lang]):
             for values in sorted(self.sort_map[lang][element], key = lambda x: entry_sort(self.entries[x[0]], x[1], lang)):
