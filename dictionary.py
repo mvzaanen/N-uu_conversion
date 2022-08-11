@@ -77,8 +77,8 @@ def get_latex_header():
 }
 \\usepackage{fancyhdr}
 \\newcommand*\\nowtitle{}
-\\fancyhead[L]{\\textsf{\\rightmark}} % Top left header
-\\fancyhead[R]{\\textsf{\\leftmark}} % Top right header
+\\fancyhead[L]{\\rightmark} % Top left header
+\\fancyhead[R]{\\leftmark} % Top right header
 \\fancyhead[C]{\\textbf{\\nowtitle \\thepage}} % Top center header
 \\fancyfoot[L]{} % Bottom left footer
 \\fancyfoot[R]{} % Bottom right footer
