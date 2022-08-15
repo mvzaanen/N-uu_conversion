@@ -60,7 +60,7 @@ def get_latex_header():
     """
     return """\\documentclass[10pt]{extarticle}
 \\usepackage{array}
-\\usepackage[backend=biber,style=authoryear]{biblatex}
+\\usepackage[backend=biber,style=authoryear,maxbibnames=99]{biblatex}
 \\defbibheading{subbibliography}{}
 \\addbibresource{publications.bib}
 \\usepackage{booktabs}
