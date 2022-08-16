@@ -98,6 +98,8 @@ def get_latex_header():
 \\setlength{\parskip}{0mm}
 \\usepackage[final,hidelinks]{hyperref}
 \\urlstyle{rm}
+\\newcommand{\\nocontentsline}[3]{}
+\\newcommand{\\tocless}[2]{\\bgroup\\let\\addcontentsline=\\nocontentsline#1{#2}\\egroup}
 \\begin{document}
 \\include{intro}
 \\begin{multicols}{2}
