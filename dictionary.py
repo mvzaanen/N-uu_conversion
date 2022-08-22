@@ -68,8 +68,8 @@ def get_latex_header():
 \\setlength{\columnseprule}{0.4pt}
 \\geometry{
     a4paper,
-    left=10mm,
-    right=23mm,
+    left=23mm,
+    right=10mm,
     top=10mm,
     bottom=10mm,
     includehead,
