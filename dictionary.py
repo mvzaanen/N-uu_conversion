@@ -70,8 +70,8 @@ def get_latex_header():
     a4paper,
     left=23mm,
     right=10mm,
-    top=10mm,
-    bottom=10mm,
+    top=15mm,
+    bottom=15mm,
     includehead,
     twoside
 }
