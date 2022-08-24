@@ -208,7 +208,9 @@ class Entry:
                     result += ", ".join(map(clean_latex_text, map(str, self.headwords[l]))) + " "
         result += "}{"
         # do the other parentheticals
-        for l in Entry.Lang_type:
+        # move current language to the front of the list (i.e., do first)
+        lang_order.insert(0, lang_order.pop(lang_order.index(lang)))
+        for l in lang_order:
             if l != Entry.Lang_type.IPA and l in self.parentheticals:
                 result += "\\underbar{\\textit{" + Entry.lang2latex(l) + "}}: "
                 result += clean_latex_text(self.parentheticals[l]) + " "
