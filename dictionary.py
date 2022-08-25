@@ -344,6 +344,7 @@ class Dictionary:
                 index = values[0] # index in entries
                 word = values[1] # actual, original word
                 result += self.entries[index].get_latex(word, lang)
+        result += "\\newpage\n"
         return result
 
 
