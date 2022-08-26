@@ -164,7 +164,7 @@ class Entry:
             main += " (" + marker + ")"
 
         result += "\\entry{"
-        result += latex_cut(main, 45)
+        result += latex_cut(main, 30)
         result += "}{"
         result += "\\textbf{" + main
         result += "}"
