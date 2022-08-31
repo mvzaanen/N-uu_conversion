@@ -31,18 +31,22 @@ def read_input(filename):
     return data
 
 
-def write_output(base, data):
-    """The data is written to the output file (filename) in the format
-    that can be used as input to the dictionary portal and dictionary
-    app.
+def write_latex(filename, data):
+    """The data is written to the LaTeX file (filename) in LaTeX
+    format.
     """
-    logging.debug("Writing app output to " + base + ".txt")
-    output = open(base + ".txt", "w")
-    output.write(data.get_portal())
-    output.close()
-    logging.debug("Writing app output to " + base + ".tex")
-    output = open(base + ".tex", "w")
+    logging.debug("Writing LaTeX output to " + filename)
+    output = open(filename, "w")
     output.write(data.get_latex())
+    output.close()
+
+def write_portal(filename, data):
+    """The data is written to the file (filename) in portal (XML)
+    format.
+    """
+    logging.debug("Writing app output to " + filename)
+    output = open(filename, "w")
+    output.write(data.get_portal())
     output.close()
 
 
@@ -60,12 +64,16 @@ def main():
             help = "name of ods spreadsheet file",
             action = "store",
             metavar = "FILE")
-    parser.add_argument("-o", "--output",
-            help = "name of output base filename",
+    parser.add_argument("-t", "--latex",
+            help = "name of latex filename",
             action = "store",
-            metavar = "FILE BASE")
+            metavar = "FILE")
+    parser.add_argument("-p", "--portal",
+            help = "name of portal filename",
+            action = "store",
+            metavar = "FILE")
     parser.add_argument("-l", "--log",
-            help = "name of logging filename",
+            help = "name of logging filename (stdout default)",
             action = "store",
             metavar = "FILE")
     parser.add_argument("-d", "--debug",
@@ -84,13 +92,18 @@ def main():
 
     # Perform checks on arguments
     if args.input == None:
+        print(parser.print_help())
         parser.error("An input filename is required.")
-    if args.output == None:
-        parser.error("An output base filename is required.")
+    if args.latex == None and args.portal == None:
+        print(parser.print_help())
+        parser.error("At least a LaTeX or portal filename is required.")
 
     # Handle the data
     data = read_input(args.input)
-    write_output(args.output, data)
+    if args.latex != None:
+        write_latex(args.latex, data)
+    if args.portal != None:
+        write_portal(args.portal, data)
 
 
 if __name__ == '__main__':
