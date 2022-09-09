@@ -251,7 +251,7 @@ class Dictionary:
                 self.sort_map[lang][sort_element] = [(index, element)]
 
 
-    def insert(self, n_uu, pos, ipa, nama, afrikaans, afr_loc, english, par_nama, par_afrikaans, par_english, line_nr):
+    def insert(self, n_uu, pos, ipa, nama, afrikaans, afr_loc, english, par_nama, par_afrikaans, par_english, audio_word, audio_sentence, line_nr):
         """Create and add the entry to the entries list. Len(self.entries)
         provides the index of the new entry.  Parse the language
         and IPA fields.
@@ -281,7 +281,7 @@ class Dictionary:
             pos = ""
             logging.warning("Missing POS on line " + str(line_nr))
         # Add information to entries
-        self.entries.append(Entry(hws, pos, parentheticals, line_nr))
+        self.entries.append(Entry(hws, pos, parentheticals, audio_word, audio_sentence, line_nr))
         new_index = len(self.entries) - 1 # Get index which is length - 1
 
         # Insert information in self.lang_map
@@ -307,8 +307,10 @@ class Dictionary:
         par_afrikaans = convert_to_string(line["Afrik Parentheticals"])
         english = convert_to_string(line["English"])
         par_english = convert_to_string(line["Parentheticals, English"])
+        audio_word = convert_to_string(line["Dictionary Recording (target word only)"])
+        audio_sentence = convert_to_string(line["Recordings (target word in sentence)"])
 
-        self.insert(n_uu, pos, ipa, nama, afrikaans, afr_loc, english, par_nama, par_afrikaans, par_english, line_nr)
+        self.insert(n_uu, pos, ipa, nama, afrikaans, afr_loc, english, par_nama, par_afrikaans, par_english, audio_word, audio_sentence, line_nr)
 
 
     def __str__(self):

@@ -9,6 +9,7 @@ from enum import Enum
 from headword import Headword
 import logging
 from output_helper import clean_portal, clean_latex_text, clean_latex_ipa, latex_cut
+import re
 
 
 class Entry:
@@ -100,17 +101,21 @@ class Entry:
         return Entry.pos2text_map[pos]
 
 
-    def __init__(self, headwords, pos, parentheticals, line_nr):
+    def __init__(self, headwords, pos, parentheticals, audio_word, audio_sentence, line_nr):
         """An Entry needs to be introduced using the fields that are required
         for output.  headwords contains a dictionary with Lang_type as
         keys and lists of headwords as values. POS is a pos type.
         parentheticals is also a dictionary with Lang_type as keys and
         as values a string.  line_nr is the line the entry is found in.
+        audio_word and audio_sentence contain references to audio
+        files of individual words or sentences respectively.
         """
         self.line_nr = str(line_nr)
         self.headwords = headwords
         self.pos = pos
         self.parentheticals = parentheticals
+        self.audio_word = audio_word
+        self.audio_sentence = audio_sentence
 
 
     def __str__(self):
@@ -145,6 +150,9 @@ class Entry:
             result += "<" + Entry.lang2text(lang) + " par>"
             result += clean_portal(self.parentheticals[lang])
             result += "\n"
+        if self.audio_word:
+            for f in re.split(" *[,;] *", self.audio_word):
+                result += "<audio>" + f + ".wav\n"
         result += "**\n"
         return result
 
