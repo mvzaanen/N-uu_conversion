@@ -1,0 +1,44 @@
+./convert.py -i ../data/Transcriptions--Master31Jan2022-BES\ Afrikaans\ \&\ Nama\ feedback\ added.ods -t out.tex
+
+check each language starts on an odd page
+REPLACE line 8083 with
+\newpage
+\markboth{}{}
+\renewcommand{\nowtitle}{}
+\setlength{\columnseprule}{0pt}
+\hfill 
+\vfill 
+\newpage 
+\setlength{\columnseprule}{0.4pt}
+
+REPLACE line 13483 with
+\newpage
+\markboth{}{}
+\renewcommand{\nowtitle}{}
+\setlength{\columnseprule}{0pt}
+\hfill 
+\vfill 
+\newpage 
+\setlength{\columnseprule}{0.4pt}
+
+ADD hyphen (3590):
+\entry{\textipa{\textdoublebarpipe}x'unke\textipa{\textdoublebarpipe}x'unca, \textipa{\textdoublebarpipe}x'unca\textipa{\textdoublebarpipe}x'unca}{\textbf{\textipa{\textdoublebarpipe}x'unke\textipa{\textdoublebarpipe}x'unca, \textipa{\textdoublebarpipe}x'unca\textipa{\textdoublebarpipe}x'unca}}{(T2)}{[\textipa{\textdoublebarpipe{}X'unke\-\textdoublebarpipe{}X'unc@, \textdoublebarpipe{}X'unc@\textdoublebarpipe{}X'unc@, \textdoublebarpipe{}q'unkE\textdoublebarpipe{}q'unc@}]}{\underbar{Nama}: kaise \textipa{\textvertline}g\^{a}ixa, kaise \textipa{\textvertline}g\^{\i}xa \underbar{Afr}: baie suinig wees, baie inhalig twees \underbar{Eng}: be very stingy }{\underbar{\textit{Nama}}: \textipa{\textvertline}gow.\ \textit{\textipa{\textdoublebarpipe}x'unca} `\textipa{\textvertline}g\^{a}ixa, \textipa{\textvertline}g\^{\i}xa' \underbar{\textit{Afr}}: vgl. \textit{\textipa{\textdoublebarpipe}x'unca} `suinig wees' \underbar{\textit{Eng}}: cf.\ \textit{\textipa{\textdoublebarpipe}x'unca} `be stingy' } 
+
+ADD hyphen (17457):
+\entry{\textit{Stipagrostis uniplumis}}{\textbf{\textit{Stipagrostis uniplumis}}, silky Bushman grass}{(T1a)}{}{\underbar{N$|$uu}: \textipa{\textvertline}hee ni !'uria \underbar{Nama}: \textipa{\textdoublebarpipe}habob, \textit{Stipagrostis uni\-plumis} \underbar{Afr}: blinkhaarboesmangras, \textit{Stipagrostis uni\-plumis} \underbar{Afr$^{\mbox{\footnotesize{ons}}}$}: beesgras, sandgras }{\underbar{\textit{Eng}}: lit.\ `grass which is white' \underbar{\textit{Nama}}: !oa!\={u}.\ `!uri \textipa{\textvertline}g\^{a}b' \underbar{\textit{Afr}}: let.\ `gras wat wit is' }
+
+
+
+pdflatex out
+biber out # will give 6 WARNINGS
+pdflatex out
+pdflatex out
+pdflatex out
+
+
+
+
+***** AUDIO *****
+./prepare_audio.py -i ../data/Transcriptions--Master31Jan2022-BES\ Afrikaans\ \&\ Nama\ feedback\ added.ods -b ../../Data/ -o audio.sh -t audio
+chmod 755 audio.sh
+./audio.sh
