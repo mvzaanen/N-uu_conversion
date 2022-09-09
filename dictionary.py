@@ -336,9 +336,9 @@ class Dictionary:
         sorted according to mapping.
         """
         result = "{\\hfill\\\\\\Large\\textbf{" + Entry.lang2latex_long(lang) + "}}\\\\\n"
-        result += "\\phantomsection\n"
-        result += "\\addcontentsline{toc}{section}{" + Entry.lang2latex_long(lang) + "}\n"
-        result += "\\renewcommand*\\nowtitle{" + Entry.lang2latex_long(lang) + " }\n"
+        result += "\\phantomsection%\n"
+        result += "\\addcontentsline{toc}{section}{" + Entry.lang2latex_long(lang) + "}%\n"
+        result += "\\renewcommand*\\nowtitle{" + Entry.lang2latex_long(lang) + " }%\n"
         for element in sorted(self.sort_map[lang]):
             for values in sorted(self.sort_map[lang][element], key = lambda x: entry_sort(self.entries[x[0]], x[1], lang)):
                 index = values[0] # index in entries
