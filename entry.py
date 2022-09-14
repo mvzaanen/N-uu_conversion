@@ -28,11 +28,11 @@ class Entry:
         elif lang == Entry.Lang_type.NAMA:
             return "Nama"
         elif lang == Entry.Lang_type.AFRIKAANS:
-            return "Afr"
+            return "Afrikaans"
         elif lang == Entry.Lang_type.AFR_LOC:
             return "Afr loc"
         elif lang == Entry.Lang_type.ENGLISH:
-            return "Eng"
+            return "English"
 
 
     def lang2latex(lang):
@@ -145,14 +145,14 @@ class Entry:
             result += "<" + Entry.lang2text(lang) + ">"
             result += "\n<synonym>".join(map(clean_portal, self.headwords[lang]))
             result += "\n"
-        result += "<POS>" + Entry.pos2text(self.pos) + "\n"
+        result += "<Part of speech>" + Entry.pos2text(self.pos) + "\n"
         for lang in self.parentheticals:
-            result += "<" + Entry.lang2text(lang) + " par>"
+            result += "<" + Entry.lang2text(lang) + " example sentence>"
             result += clean_portal(self.parentheticals[lang])
             result += "\n"
         if self.audio_word:
             for f in re.split(" *[,;] *", self.audio_word):
-                result += "<audio>" + f + ".wav\n"
+                result += "<Sound>" + f + ".wav\n"
         result += "**\n"
         return result
 
