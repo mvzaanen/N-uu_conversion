@@ -5,6 +5,8 @@ This file contains helper functions to convert dictionary information to
 output. Currently, LaTeX and dicionary app output is provided.
 """
 
+import logging
+
 
 ipa_latex_mapping = {
         32 : " ",
@@ -472,10 +474,71 @@ def clean_latex_ipa(ipa):
     return clean_latex(ipa, ipa_latex_mapping)
 
 
+def clean_portal_text(text):
+    """clean_portal_text makes the language text for the portal output
+    clean.  Currently unicode 805 character is replaced with 778
+    and the half moons 9789 and 9790 are removed.  Also, combining
+    characters are removed.
+    """
+    output = str(text).replace(chr(805), chr(778))
+    output = output.replace(chr(9789), '').replace(chr(9790), '')
+    # Handle combining characters
+    new_output = ""
+    i = 0
+    while i < len(output):
+        if i + 1 < len(output) and ord(output[i + 1]) == 768: # ^
+            if output[i] == "a":
+                new_output += chr(224)
+            elif output[i] == "e":
+                new_output += chr(232)
+            elif output[i] == "i":
+                new_output += chr(236)
+            elif output[i] == "o":
+                new_output += chr(242)
+            elif output[i] == "u":
+                new_output += chr(249)
+            elif output[i] == "n":
+                new_output += chr(505)
+            else:
+                logging.warning("Found ` combining character which is not handled properly.")
+            i += 1
+        elif i + 1 < len(output) and ord(output[i + 1]) == 770: # ^
+            if output[i] == "a":
+                new_output += chr(226)
+            elif output[i] == "e":
+                new_output += chr(234)
+            elif output[i] == "i":
+                new_output += chr(238)
+            elif output[i] == "o":
+                new_output += chr(244)
+            elif output[i] == "u":
+                new_output += chr(251)
+            else:
+                logging.warning("Found ^ combining character which is not handled properly.")
+            i += 1
+        elif i + 1 < len(output) and ord(output[i + 1]) == 771: # ^
+            if output[i] == "o":
+                new_output += chr(245)
+            else:
+                logging.warning("Found ~ combining character which is not handled properly.")
+            i += 1
+        elif i + 1 < len(output) and ord(output[i + 1]) == 783: # ȅ
+            if output[i] == "e":
+                new_output += chr(517)
+            else:
+                logging.warning("Found ◌̏  combining character which is not handled properly.")
+            i += 1
+        else:
+            new_output += output[i]
+        i += 1
+    return new_output
+
+
 def clean_portal(text):
     """clean_portal makes the text for the portal output clean.
     Currently only unicode 805 character is replaced with 778 and the
     half moons 9789 and 9790 are removed.
     """
-
-    return str(text).replace(chr(805), chr(778)).replace(chr(9789), '').replace(chr(9790), '')
+    output = str(text).replace(chr(805), chr(778))
+    output = output.replace(chr(9789), '').replace(chr(9790), '')
+    return output

@@ -8,7 +8,7 @@ represents an entry in the dictionary (spreadsheet).
 from enum import Enum
 from headword import Headword
 import logging
-from output_helper import clean_portal, clean_latex_text, clean_latex_ipa, latex_cut
+from output_helper import clean_portal, clean_portal_text, clean_latex_text, clean_latex_ipa, latex_cut
 import re
 
 
@@ -143,7 +143,10 @@ class Entry:
         result += "<Project>N|uu dictionary\n"
         for lang in self.headwords:
             result += "<" + Entry.lang2text(lang) + ">"
-            result += "\n<synonym>".join(map(clean_portal, self.headwords[lang]))
+            if lang == Entry.Lang_type.IPA:
+                result += "\n<synonym>".join(map(clean_portal, self.headwords[lang]))
+            else:
+                result += "\n<synonym>".join(map(clean_portal_text, self.headwords[lang]))
             result += "\n"
         result += "<Part of speech>" + Entry.pos2text(self.pos) + "\n"
         for lang in self.parentheticals:
