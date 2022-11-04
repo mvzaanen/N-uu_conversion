@@ -41,4 +41,14 @@ pdflatex out
 ***** AUDIO *****
 ./prepare_audio.py -i ../data/Transcriptions--Master31Jan2022-BES\ Afrikaans\ \&\ Nama\ feedback\ added.ods -b ../../Data/ -o audio.sh -t audio
 chmod 755 audio.sh
+
+# copy audio files
 ./audio.sh
+
+# create portal file
+./convert.py -i ../data/Transcriptions--Master31Jan2022-BES\ Afrikaans\ \&\ Nama\ feedback\ added.ods -p out.txt
+
+# create OPUS
+mkdir audio_opus_16000
+cd audio_opus_16000
+for i in ../audio/*.wav; do j=`basename $i`; ffmpeg -i $i -c:a libopus -ab 16k -ar 16000 -ac 1 -application voip ${j%.wav}.ogg; done
