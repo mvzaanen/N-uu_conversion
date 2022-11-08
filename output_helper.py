@@ -163,6 +163,7 @@ ipa_latex_mapping = {
         770 : "\\^{", # COMBINING CIRCUMFLEX ACCENT
         771 : "\\~{", # COMBINING TILDE
         778 : "\\r{", # COMBINING RING ABOVE
+        794 : "\\textcorner{}", # COMBINING LEFT ANGLE ABOVE
         804 : "\\\"*{", # COMBINING DIAERESIS BELOW
         805 : "\\r{", # COMBINING RING BELOW -> map to COMBINING RING ABOVE
         809 : "\\s{", # COMBINING VERTICAL LINE BELOW
@@ -385,7 +386,10 @@ def handle_combining(text, index, base, mapping):
             base = "\\i" # remove dot on i
         elif accent_above and base == "j":
             base = "\\j" # remove dot on j
-        return (result + base + "}", index, accent_above)
+        if combining_char == 794:
+            return (base + mapping[combining_char], index, accent_above)
+        else:
+            return (result + base + "}", index, accent_above)
 
 
 def clean_latex(text, mapping):
@@ -399,6 +403,7 @@ def clean_latex(text, mapping):
     while index < len(text):
         base = mapping[ord(text[index])] # Grab base letter
         if index + 1 < len(text) and ord(text[index + 1]) >= 768 and ord(text[index + 1]) <= 880: # test if next char is combining
+            found = False
             (combined, index, accent_above) = handle_combining(text, index + 1, base, mapping)
             result += combined
         else:
