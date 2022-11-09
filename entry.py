@@ -155,7 +155,8 @@ class Entry:
             result += "\n"
         if self.audio_word:
             for f in re.split(" *[,;] *", self.audio_word):
-                result += "<Sound>" + f + ".wav\n"
+                if f != "--":
+                    result += "<Sound>" + f + ".wav\n"
         result += "**\n"
         return result
 
