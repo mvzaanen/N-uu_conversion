@@ -151,7 +151,7 @@ class Entry:
         result += "<Part of speech>" + Entry.pos2text(self.pos) + "\n"
         for lang in self.parentheticals:
             result += "<" + Entry.lang2text(lang) + " example sentence>"
-            result += clean_portal(self.parentheticals[lang])
+            result += clean_portal_text(self.parentheticals[lang])
             result += "\n"
         if self.audio_word:
             for f in re.split(" *[,;] *", self.audio_word):
