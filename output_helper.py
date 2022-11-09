@@ -512,6 +512,8 @@ def clean_portal_text(text):
         elif i + 1 < len(output) and ord(output[i + 1]) == 770: # ^
             if output[i] == "a":
                 new_output += chr(226)
+            elif output[i] == "A":
+                new_output += chr(194)
             elif output[i] == "e":
                 new_output += chr(234)
             elif output[i] == "i":
@@ -521,6 +523,7 @@ def clean_portal_text(text):
             elif output[i] == "u":
                 new_output += chr(251)
             else:
+                print(output[i])
                 logging.warning("Found ^ combining character which is not handled properly.")
             i += 1
         elif i + 1 < len(output) and ord(output[i + 1]) == 771: # ^
