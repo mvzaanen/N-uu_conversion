@@ -541,7 +541,9 @@ def clean_portal_text(text):
         else:
             new_output += output[i]
         i += 1
-    return new_output
+    # remove multiple whitespaces (including newline) and replace with
+    # one
+    return " ".join(new_output.split())
 
 
 def clean_portal(text):
@@ -551,4 +553,6 @@ def clean_portal(text):
     """
     output = str(text).replace(chr(805), chr(778))
     output = output.replace(chr(9789), '').replace(chr(9790), '')
-    return output
+    # remove multiple whitespaces (including newline) and replace with
+    # one
+    return " ".join(output.split())
