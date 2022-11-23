@@ -141,22 +141,75 @@ class Entry:
         """
         result = "**\n"
         result += "<Project>N|uu dictionary\n"
-        for lang in self.headwords:
-            result += "<" + Entry.lang2text(lang) + ">"
-            if lang == Entry.Lang_type.IPA:
-                result += "\n<synonym>".join(map(clean_portal, self.headwords[lang]))
-            else:
-                result += "\n<synonym>".join(map(clean_portal_text, self.headwords[lang]))
-            result += "\n"
+        # Fields should be ordered as follows:
+        #<N|uu>						N|uu
+        #<Synonym>					N|uu synonyms
+        #<IPA>						IPA
+        #<IPA>						IPA synonyms (field is also IPA)
+        #<Part of speech>				Part of speech
+        #<Afr loc>					Afr loc
+        #<Afr loc>					Afr loc synonyms (field is also Afr loc)
+        #<Additional Nama information>			Additional Nama information
+        #<Additional Afrikaans information>		Additional Afrikaans information
+        #<Additional English information>		Additional English information
+        #<Sound>					Sound
+        #<Nama>					Nama
+        #<Synonym> 					Nama synonyms 
+        #<Afrikaans>					Afrikaans
+        #<Synonym> 					Afrikaans synonyms 
+        #<English>					English
+        #<Synonym> 					English synonyms 
+        #<Hidden>					Hidden field
+        #<Synonym>					Hidden extra field, if more than one hidden field is required
+
+        # N|uu
+        result += "<N|uu>"
+        result += "\n<synonym>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.NUU]))
+        result += "\n"
+        # IPA
+        result += "<IPA>"
+        result += "\n<IPA>".join(map(clean_portal, self.headwords[Entry.Lang_type.IPA]))
+        result += "\n"
+        # POS
         result += "<Part of speech>" + Entry.pos2text(self.pos) + "\n"
-        for lang in self.parentheticals:
-            result += "<" + Entry.lang2text(lang) + " example sentence>"
-            result += clean_portal_text(self.parentheticals[lang])
+        # AFR LOC
+        if Entry.Lang_type.AFR_LOC in self.headwords:
+            result += "<Afr loc>"
+            result += "\n<Afr loc>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.AFR_LOC]))
             result += "\n"
+        # Nama parentheticals
+        if Entry.Lang_type.NAMA in self.parentheticals:
+            result += "<Additional Nama information>"
+            result += clean_portal_text(self.parentheticals[Entry.Lang_type.NAMA])
+            result += "\n"
+        # Afrikaans parentheticals
+        if Entry.Lang_type.AFRIKAANS in self.parentheticals:
+            result += "<Additional Afrikaans information>"
+            result += clean_portal_text(self.parentheticals[Entry.Lang_type.AFRIKAANS])
+            result += "\n"
+        # English parentheticals
+        if Entry.Lang_type.ENGLISH in self.parentheticals:
+            result += "<Additional English information>"
+            result += clean_portal_text(self.parentheticals[Entry.Lang_type.ENGLISH])
+            result += "\n"
+        # Sound
         if self.audio_word:
             for f in re.split(" *[,;] *", self.audio_word):
                 if f != "--":
                     result += "<Sound>" + f + ".wav\n"
+        # Nama
+        result += "<Nama>"
+        result += "\n<Synonym>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.NAMA]))
+        result += "\n"
+        # Afrikaans
+        result += "<Afrikaans>"
+        result += "\n<Synonym>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.AFRIKAANS]))
+        result += "\n"
+        # English
+        result += "<English>"
+        result += ("\n<Synonym>").join(map(clean_portal_text, self.headwords[Entry.Lang_type.ENGLISH]))
+        result += "\n"
+        # HIDDEN
         result += "**\n"
         return result
 
