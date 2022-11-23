@@ -219,7 +219,7 @@ class Entry:
         # Sound
         if self.audio_word:
             for f in re.split(" *[,;] *", self.audio_word):
-                if f != "--":
+                if f != "--" and f != "":
                     result += "<Sound>" + f + ".wav\n"
         # Nama
         result += "<Nama>"
