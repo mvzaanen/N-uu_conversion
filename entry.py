@@ -135,6 +135,30 @@ class Entry:
         return result
 
 
+    def get_hidden(self):
+        """get_hidden returns a list of words that the user should also be able
+        to search for, based on the contents of the headwords.
+        """
+        hidden_words = set()
+        to_split = []
+        for hw in self.headwords[Entry.Lang_type.NUU]:
+            if Headword.marker2text(hw.get_marker()) != "": # words that have markers need to be added
+                to_split.append(hw.get_word())
+        for word in to_split:
+            for subword in re.split(" |,", word):
+                if len(subword) > 1 and subword != "(Western)" and subword != "(Eastern)":
+                    hidden_words.add(subword)
+
+        to_check = self.headwords[Entry.Lang_type.NAMA] + self.headwords[Entry.Lang_type.AFRIKAANS] + self.headwords[Entry.Lang_type.ENGLISH]
+        if Entry.Lang_type.AFR_LOC in self.headwords:
+            to_check += self.headwords[Entry.Lang_type.AFR_LOC]
+        for hw in to_check:
+            for subword in re.split(" |,|'|`|\)|\(", hw.get_word()):
+                if subword != hw.get_word() and len(subword) > 1 and subword != "NKK:" and subword[-1] != ".":
+                    hidden_words.add(subword)
+        return list(hidden_words)
+
+
     def get_portal(self):
         """get_portal returns a string of the entry to fp so the
         information can be incorporated in the dictionary portal.
@@ -207,9 +231,14 @@ class Entry:
         result += "\n"
         # English
         result += "<English>"
-        result += ("\n<Synonym>").join(map(clean_portal_text, self.headwords[Entry.Lang_type.ENGLISH]))
+        result += "\n<Synonym>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.ENGLISH]))
         result += "\n"
         # HIDDEN
+        hidden_words = Entry.get_hidden(self)
+        if len(hidden_words) != 0:
+            result += "<Hidden>"
+            result += "\n<Synonym>".join(map(clean_portal_text, hidden_words))
+            result += "\n"
         result += "**\n"
         return result
 
