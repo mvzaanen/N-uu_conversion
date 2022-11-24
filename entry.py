@@ -188,7 +188,7 @@ class Entry:
 
         # N|uu
         result += "<N|uu>"
-        result += "\n<synonym>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.NUU]))
+        result += "\n<Synonym>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.NUU]))
         result += "\n"
         # IPA
         result += "<IPA>"
