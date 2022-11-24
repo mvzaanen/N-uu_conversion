@@ -135,28 +135,34 @@ class Entry:
         return result
 
 
-    def get_hidden(self):
+    def get_hidden(self, lang):
         """get_hidden returns a list of words that the user should also be able
-        to search for, based on the contents of the headwords.
+        to search for, based on the contents of the headwords.  Select
+        only those for language lang.
         """
-        hidden_words = set()
-        to_split = []
-        for hw in self.headwords[Entry.Lang_type.NUU]:
-            if Headword.marker2text(hw.get_marker()) != "": # words that have markers need to be added
-                to_split.append(hw.get_word())
-        for word in to_split:
-            for subword in re.split(" |,", word):
-                if len(subword) > 1 and subword != "(Western)" and subword != "(Eastern)":
-                    hidden_words.add(subword)
-
-        to_check = self.headwords[Entry.Lang_type.NAMA] + self.headwords[Entry.Lang_type.AFRIKAANS] + self.headwords[Entry.Lang_type.ENGLISH]
-        if Entry.Lang_type.AFR_LOC in self.headwords:
-            to_check += self.headwords[Entry.Lang_type.AFR_LOC]
-        for hw in to_check:
-            for subword in re.split(" |,|'|`|\)|\(", hw.get_word()):
-                if subword != hw.get_word() and len(subword) > 1 and subword != "NKK:" and subword[-1] != ".":
-                    hidden_words.add(subword)
-        return list(hidden_words)
+        result = []
+        if lang == Entry.Lang_type.NUU:
+            to_split = []
+            for hw in self.headwords[Entry.Lang_type.NUU]:
+                if Headword.marker2text(hw.get_marker()) != "": # words that have markers need to be added
+                    to_split.append(hw.get_word())
+            for word in to_split:
+                hidden_words = set()
+                for subword in re.split(" |,", word):
+                    if len(subword) > 1 and subword != "(Western)" and subword != "(Eastern)":
+                        hidden_words.add(subword)
+                result += list(hidden_words)
+        else:
+            to_check = []
+            if lang in self.headwords:
+                to_check = self.headwords[lang]
+            hidden_words = set()
+            for hw in to_check:
+                for subword in re.split(" |,|'|`|\)|\(", hw.get_word()):
+                    if subword != hw.get_word() and len(subword) > 1 and subword != "NKK:" and subword[-1] != ".":
+                        hidden_words.add(subword)
+            result += list(hidden_words)
+        return result
 
 
     def get_portal(self):
@@ -234,9 +240,29 @@ class Entry:
         result += "\n<Synonym>".join(map(clean_portal_text, self.headwords[Entry.Lang_type.ENGLISH]))
         result += "\n"
         # HIDDEN
-        hidden_words = Entry.get_hidden(self)
+        hidden_words = Entry.get_hidden(self, Entry.Lang_type.NUU)
         if len(hidden_words) != 0:
-            result += "<Hidden>"
+            result += "<Hidden N|uu>"
+            result += "\n<Synonym>".join(map(clean_portal_text, hidden_words))
+            result += "\n"
+        hidden_words = Entry.get_hidden(self, Entry.Lang_type.NAMA)
+        if len(hidden_words) != 0:
+            result += "<Hidden Nama>"
+            result += "\n<Synonym>".join(map(clean_portal_text, hidden_words))
+            result += "\n"
+        hidden_words = Entry.get_hidden(self, Entry.Lang_type.AFRIKAANS)
+        if len(hidden_words) != 0:
+            result += "<Hidden Afrikaans>"
+            result += "\n<Synonym>".join(map(clean_portal_text, hidden_words))
+            result += "\n"
+        hidden_words = Entry.get_hidden(self, Entry.Lang_type.AFR_LOC)
+        if len(hidden_words) != 0:
+            result += "<Hidden Afr loc>"
+            result += "\n<Synonym>".join(map(clean_portal_text, hidden_words))
+            result += "\n"
+        hidden_words = Entry.get_hidden(self, Entry.Lang_type.ENGLISH)
+        if len(hidden_words) != 0:
+            result += "<Hidden English>"
             result += "\n<Synonym>".join(map(clean_portal_text, hidden_words))
             result += "\n"
         result += "**\n"
